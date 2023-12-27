@@ -1,3 +1,3 @@
 # library_project
 
-Stacks : React, Node js, MySQL, express
+Stacks : React, Node js, MySQL
