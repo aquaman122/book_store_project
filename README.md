@@ -1,3 +1,3 @@
 # library_project
 
-Stacks : React, Node js, MySQL
+Skills : React, Node js, MySQL

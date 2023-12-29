@@ -94,7 +94,7 @@ router.post(
   );
 })
 // 비밀번호 초기화
-router.post('/password_reset',
+router.post('/reset',
   [body("email").isEmail().withMessage("이메일"),
    isValidate
   ],
@@ -123,7 +123,7 @@ router.post('/password_reset',
 )
 // 비밀번호 수정
 router.put(
-  '/password_update',
+  '/reset',
   [
     body('email').isEmail().withMessage("뭔가이상하"),
     body('password').isStrongPassword().withMessage("특수문자 하나,알파벳 소문자 하나, 알파벳 대문자 하나이상"),

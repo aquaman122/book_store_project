@@ -1,5 +1,7 @@
 const express = require("express");
 const router = express.Router();
+// validator
+const {body, validationResult} = require('express-validator');
 // connection mariadb module
 const conn = require('../mariadb');
 
@@ -7,8 +9,7 @@ const conn = require('../mariadb');
 const jwt = require('jsonwebtoken');
 
 // dotenv module and declear
-const dotEnv = require("dotenv");
-dotEnv.config();
+require("dotenv").config();
 
 router.use(express.json());
 
@@ -26,6 +27,5 @@ const isError = (res) => {
     message: "오류임.."
   });
 }
-
 
 module.exports = router;
