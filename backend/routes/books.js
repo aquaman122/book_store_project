@@ -19,13 +19,19 @@ const isValidate = (req, res, next) => {
     return next();
   }
   res.status(400).json(err.array());
-}
+};
 
 const isError = (res) => {
   return res.status(404).json({
     message: "오류임.."
   });
-}
+};
+
+// 전체 도서조회
+
+// 개별 도서조회
+
+// category별 도서 목록 조회
 
 
 module.exports = router;

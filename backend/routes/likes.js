@@ -20,12 +20,16 @@ const isValidate = (req, res, next) => {
     return next();
   }
   res.status(400).json(err.array());
-}
+};
 
 const isError = (res) => {
   return res.status(404).json({
     message: "오류임.."
   });
-}
+};
+
+// 좋아요 추가 PUT
+
+// 좋아요 취소 DELETE
 
 module.exports = router;
