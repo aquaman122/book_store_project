@@ -3,6 +3,7 @@ const {StatusCodes} = require('http-status-codes');
 // JWT module
 const jwt = require( 'jsonwebtoken');
 const crypto = require('crypto'); // crypto 모듈 js기본 암호화 모듈
+require("dotenv").config();
 
 const join = (req, res) => {
   const {email, password} = req.body;
@@ -106,37 +107,42 @@ const resetInit = (req, res) => {
 // const reset = (req, res) => {
 //   const {email, password, newPassword} = req.body;
   
-//   const sql = `UPDATE users SET password = ? WHERE email = ? AND password = ?`
-//   // const salt = crypto.randomBytes(64).toString('base64');
-//   // const hashPassword = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('base64');
-
-//   // const values = [newHashPassword, email, hashPassword]
-//   conn.query(sql, email,
-//     (err, results) => {
-//       if (err) {
-//         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-//           message: "Internal Server Error"
-//         })
-//       }
-//       if (results.affectedRows < 1) {
-//         return res.status(StatusCodes.UNAUTHORIZED).json({
-//           message: "이메일이나 패스워드가 틀림요"
-//         })
-//       }
-      
-//       const token = jwt.sign({
-//         email: email,
-//         password: newHashPassword
-//       }, process.env.PRIVITE_KEY, {
-//         expiresIn: "1h",
-//         issuer: "me"
+//   const newSalt = crypto.randomBytes(64).toString('base64');
+//   const newHashPassword = crypto.pbkdf2Sync(newPassword, newSalt, 10000, 64, 'sha512').toString('base64');
+//   const sql = `UPDATE users SET password = ?, salt = ? WHERE email = ? AND password = ?`;
+//   const values = [newHashPassword, newSalt, email, password];
+  
+//   conn.query(sql, values, (err, results) => {
+//     if (err) {
+//       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+//         message: "Internal Server Error"
 //       })
-//       return res.status(StatusCodes.OK).json({
-//         message: `비밀번호 변경 완료`,
-//         token: token
-//       });
 //     }
+
+//     if (results.affectedRows < 1) {
+//       return res.status(StatusCodes.UNAUTHORIZED).json({
+//         message: "이메일이나 패스워드가 틀림요"
+//       })
+//     }
+    
+//     const token = jwt.sign({
+//       email: email,
+//       password: newHashPassword
+//     }, process.env.PRIVITE_KEY, {
+//       expiresIn: "1h",
+//       issuer: "me"
+//     });
+
+//     res.cookie('token', token, {
+//       httpOnly: true,
+//     });
+
+//     return res.status(StatusCodes.OK).json({
+//       message: `비밀번호 변경 완료`,
+//       token: token
+//     });
+//   }
 // );
 // }
 
-module.exports = {join, login, resetInit, reset};
+module.exports = {join, login, resetInit};
