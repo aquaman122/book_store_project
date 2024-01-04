@@ -7,30 +7,19 @@ const conn = require('../mariadb');
 const jwt = require('jsonwebtoken');
 
 // dotenv module and declear
-const dotEnv = require("dotenv");
-dotEnv.config();
+require("dotenv").config;
+
+const {
+  allBooks,
+  bookDetail
+} = require('../controller/bookController');
 
 router.use(express.json());
 
-const isValidate = (req, res, next) => {
-  const err = validationResult(req);
-
-  if (err.isEmpty()) {
-    return next();
-  }
-  res.status(400).json(err.array());
-};
-
-const isError = (res) => {
-  return res.status(404).json({
-    message: "오류임.."
-  });
-};
-
 // 전체 도서조회
-
+router.get('/', allBooks);
 // 개별 도서조회
-
+router.get('/:id', bookDetail);
 // category별 도서 목록 조회
 
 
