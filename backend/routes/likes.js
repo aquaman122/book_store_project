@@ -5,6 +5,7 @@ const {body, validationResult} = require('express-validator');
 // connection mariadb module
 const conn = require('../mariadb');
 
+const {addLike, removeLike} = require('../controller/likeController');
 // JWT module
 const jwt = require('jsonwebtoken');
 
@@ -29,6 +30,7 @@ const isError = (res) => {
 };
 
 // 좋아요 추가 PUT
+router.put('/', )
 
 // 좋아요 취소 DELETE
 
