@@ -14,14 +14,13 @@ const join = (req, res) => {
   const sql = `INSERT INTO users (email, password, salt) VALUES(?, ?, ?)`
   const values = [email, hashPassword, salt];
   
-  conn.query(sql, values,
-    function(err, results) {
+  conn.query(sql, values, (err, results) => {
       if (err) {
         console.log(err);
         return res.status(StatusCodes.BAD_REQUEST).end();
       }
       res.status(StatusCodes.CREATED).json({
-        message : `${email}님 하이요`
+        message : `회원가입 완료.`
       });
     }
   );
@@ -46,14 +45,14 @@ const login = (req, res) => {
         })
       }
       // salt값 꺼내서 날 것으로 들어온 비밀번호를 암호화.
-      const user = results[0]
+      const loginUser = results[0]
 
       const hashPassword = crypto.pbkdf2Sync(password, user.salt, 10000, 64, 'sha512').toString('base64');
 
-      if(user.password === hashPassword) {
+      if(loginUser && loginUser.password === hashPassword) {
         const token = jwt.sign({
-          email: user.email,
-          password: user.password
+          email: loginUser.email,
+          password: loginUser.password
         }, process.env.PRIVITE_KEY, {
           expiresIn: "1h",
           issuer: "me"
@@ -62,20 +61,20 @@ const login = (req, res) => {
         res.cookie("token", token, {
           httpOnly: true
         });
-        return res.status(StatusCodes.OK).json({
-          message: `${user.email}님 하이요`,
+        res.status(StatusCodes.OK).json({
+          message: `${loginUser.email}님 로그인`,
           token: token
         })
       } else {
-        return res.status(StatusCodes.UNAUTHORIZED).json({
-          message: `이메일이나 패스워드가 틀림요`
+        res.status(StatusCodes.UNAUTHORIZED).json({
+          message: `이메일 또는 패스워드가 틀렸습니다.`
         })
       }
     }
 );
 }
 
-const resetInit = (req, res) => {
+const passwordRequestReset = (req, res) => {
   const {email, password} = req.body;
 
   const salt = crypto.randomBytes(64).toString('base64');
@@ -104,45 +103,68 @@ const resetInit = (req, res) => {
     });
 }
 
-// const reset = (req, res) => {
-//   const {email, password, newPassword} = req.body;
-  
-//   const newSalt = crypto.randomBytes(64).toString('base64');
-//   const newHashPassword = crypto.pbkdf2Sync(newPassword, newSalt, 10000, 64, 'sha512').toString('base64');
-//   const sql = `UPDATE users SET password = ?, salt = ? WHERE email = ? AND password = ?`;
-//   const values = [newHashPassword, newSalt, email, password];
-  
-//   conn.query(sql, values, (err, results) => {
-//     if (err) {
-//       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-//         message: "Internal Server Error"
-//       })
-//     }
+// 비밀번호를 변경하려면 기존 email과 password를 확인 후 새로운 password를 입력받지않나?
+const passwordChange = (req, res) => {
+  const {email, password, newPassword} = req.body;
 
-//     if (results.affectedRows < 1) {
-//       return res.status(StatusCodes.UNAUTHORIZED).json({
-//         message: "이메일이나 패스워드가 틀림요"
-//       })
-//     }
-    
-//     const token = jwt.sign({
-//       email: email,
-//       password: newHashPassword
-//     }, process.env.PRIVITE_KEY, {
-//       expiresIn: "1h",
-//       issuer: "me"
-//     });
+  // 현재 비밀번호 가져오기
+  const getUserSql = `SELECT * FROM users WHERE email = ?`
+  conn.query(getUserSql, [email], (err, results) => {
+    if (err) {
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        message: 'Internal Server Error',
+      });
+    }
 
-//     res.cookie('token', token, {
-//       httpOnly: true,
-//     });
+    if (results.length === 0) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        message: 'User not found',
+      });
+    }
 
-//     return res.status(StatusCodes.OK).json({
-//       message: `비밀번호 변경 완료`,
-//       token: token
-//     });
-//   }
-// );
-// }
+    const user = results[0];
+    const hashpassword = crypto.pbkdf2Sync(password, user.salt, 10000, 64, 'sha512').toString('base64');
 
-module.exports = {join, login, resetInit};
+    if(user.password !== hashpassword) {
+      return res.status(StatusCodes.UNAUTHORIZED).json({
+        message: 'Current password is incorrect',
+      });
+    }
+
+    const newSalt = crypto.randomBytes(64).toString('base64');
+    const newHashPassword = crypto.pbkdf2Sync(newPassword, newSalt, 10000, 64, 'sha512').toString('base64');
+
+    const updatePasswordSql = `UPDATE users SET password = ?, salt = ? WHERE email = ?`
+    const updatePasswordValues = [newHashPassword, newSalt, email];
+
+    // update 
+    conn.query(updatePasswordSql, updatePasswordValues, (err, results) => {
+      if (err) {
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+          message: 'Internal Server Error',
+        });
+      }
+
+      const token = jwt.sign({
+        email: user.email,
+        password: newHashPassword
+      },
+      process.env.PRIVITE_KEY,
+      {
+        expiresIn: '1h',
+        issuer: 'me'
+      }
+      );
+
+      res.cookie('token', token, {
+        httpOnly: true
+      });
+      return res.status(StatusCodes.OK).json({
+        message: 'Password changed successfully',
+        token: token,
+      });
+    });
+  });
+};
+
+module.exports = {join, login, passwordRequestReset, passwordChange};
