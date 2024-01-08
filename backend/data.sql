@@ -14,3 +14,20 @@ SELECT * FROM LEFT
 JOIN category ON books.category_id = category.id;
 
 SELECT * FROM books LEFT JOIN category ON books.category_id = category.id WHERE books.id = 1
+
+// 좋아요 삭제
+DELETE FROM likes WHERE users_id = ? AND liked_books_id = ?;
+
+// 장바구니 담기
+INSERT INTO cart_items (books_id, quantity, users_id) VALUES (?, ?, ?);
+
+// 장바구니 조회
+SELECT cart_items.id, books_id, title, summary, quantity, price
+FROM cart_items LEFT JOIN books
+ON cart_items.books_id = books.id;
+
+// 장바구니 아이템 조희
+DELETE FROM cart_items WHERE id = ?;
+
+// 장바구니에서 선택한 아이템 목록 조희
+SELECT * FROM BOARD.cart_items WHERE users_id=? AND id IN (?, ?);
