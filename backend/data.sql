@@ -89,3 +89,15 @@ SELECT last_insert_id();
 
 // 결제된 도서 장바구니 삭제
 DELETE FROM cartItems WHERE id IN (1,2,3); 
+
+// 주문하기 
+// 배송 정보 입력
+INSERT INTO delivery (address, receiver, contact) VALUES (?, ?, ?);
+
+// 주문 정보 입력
+INSERT INTO orders (books_title, total_quantity, total_price, users_id, delivery_id)
+VALUES (?, ?, ?, ?, ?);
+
+// 주문 상세 목록 입력
+INSERT INTO ordered_books (orders_id, books_id, quantity)
+VALUES (?, ?, ?);
