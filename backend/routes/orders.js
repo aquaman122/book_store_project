@@ -1,17 +1,16 @@
 const express = require("express");
 const router = express.Router();
-// validator
-const {body, validationResult} = require('express-validator');
-// connection mariadb module
-const conn = require('../mariadb');
-
-// JWT module
-const jwt = require('jsonwebtoken');
-
-// dotenv module and declear
-require("dotenv").config();
+const {orders, getOrders, getOrdersDetail} = require('../controller/orderController');
 
 router.use(express.json());
 
+// 주문 하기
+router.post('/', orders)
+
+// 주문 목록 조회
+router.get('/', getOrders);
+
+// 주문 상세 상품 조희
+router.get('/:id', getOrdersDetail);
 
 module.exports = router;
