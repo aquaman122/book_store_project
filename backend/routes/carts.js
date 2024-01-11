@@ -2,30 +2,18 @@ const express = require("express");
 const router = express.Router();
 // validator
 const {body, validationResult} = require('express-validator');
-// connection mariadb module
-const conn = require('../mariadb');
+const { addToCart, getCartItems, removeCartItems } = require('../controller/cartController');
 
-// JWT module
-const jwt = require('jsonwebtoken');
-
-// dotenv module and declear
-require("dotenv").config();
 
 router.use(express.json());
 
-const isValidate = (req, res, next) => {
-  const err = validationResult(req);
 
-  if (err.isEmpty()) {
-    return next();
-  }
-  res.status(400).json(err.array());
-}
+// 장바구니 담기 POST 201
+router.post('/', addToCart)
+// 장바구니 조회 200 // 장바구니 예상 상품 목록 조희
+router.get('/', getCartItems);
 
-const isError = (res) => {
-  return res.status(404).json({
-    message: "오류임.."
-  });
-}
+// 장바구니 제거 200
+router.delete('/:id', removeCartItems);
 
 module.exports = router;

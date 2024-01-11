@@ -47,7 +47,7 @@ const login = (req, res) => {
       // salt값 꺼내서 날 것으로 들어온 비밀번호를 암호화.
       const loginUser = results[0]
 
-      const hashPassword = crypto.pbkdf2Sync(password, user.salt, 10000, 64, 'sha512').toString('base64');
+      const hashPassword = crypto.pbkdf2Sync(password, loginUser.salt, 10000, 64, 'sha512').toString('base64');
 
       if(loginUser && loginUser.password === hashPassword) {
         const token = jwt.sign({
