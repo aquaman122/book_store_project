@@ -1,70 +1,86 @@
 const conn = require('../mariadb');
 const {StatusCodes} = require('http-status-codes');
-// JWT module
-const jwt = require( 'jsonwebtoken');
-const crypto = require('crypto'); // crypto 모듈 js기본 암호화 모듈
+const camelcaseKeys = require('camelcase-keys');
 
-const isError = (res) => {
-  console.log(err)
-  return res.status(StatusCodes.BAD_REQUEST).end();
-}
 
-const allBooks = (req, res) => {
-  const { category_id, news, limit, currentPage } = req.query;
+const allBooks = async (req, res) => {
+  try {
+    const { categoryId, news, limit, currentPage } = camelcaseKeys(req.query);
+    const parsedLimit = parseInt(limit);
+    const parsedCurrentPage = parseInt(currentPage);
+    const offset = parsedLimit * (parsedCurrentPage - 1);
+    let values = [];
 
-  const offset = limit * (currentPage - 1);
+    let sql = `SELECT *, (SELECT COUNT(*) FROM likes WHERE books.id = liked_books_id) AS likes FROM books`;
 
-  let sql = `SELECT *, (SELECT count(*) FROM likes WHERE books.id = liked_books_id) AS likes FROM books`;
-  let values = [];
-  // 카테고리별로 조회
-  if (category_id && news) {
-    sql += ` WHERE category_id=? AND pub_date BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND NOW()`;
-    values = [category_id];
-  } else if (category_id) {
-    sql += ` WHERE category_id=?`;
-    values = [category_id];
-  } else if (news) {
-    sql += ` WHERE pub_date BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND NOW()`;
+    if (categoryId && news) {
+      sql += ` WHERE category_id=? AND pub_date BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND NOW()`;
+      values = [categoryId];
+    } else if (categoryId) {
+      sql += ` LEFT JOIN category ON books.category_id = category.category_id WHERE books.category_id = ? AND pub_date BETWEEN date_sub(NOW(), INTERVAL 1 MONTH) AND NOW()`;
+      values = [categoryId];
+    } else if (news) {
+      sql += ` WHERE pub_date BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND NOW()`;
+    }
+
+    sql += ` LIMIT ? OFFSET ?`;
+
+    if (isNaN(parsedLimit)) {
+      return res.status(StatusCodes.BAD_REQUEST).json({ error: 'Invalid limit parameter' });
+    }
+    values.push(parsedLimit, offset);
+
+    const results = await queryAsync(sql, values);
+    console.log(results);
+
+    if (results.length === 0) {
+      const message = categoryId ? '해당하는 도서가 없습니다.' : '도서가 없습니다.';
+      return res.status(StatusCodes.NOT_FOUND).json({ message });
+    }
+
+    return res.status(StatusCodes.OK).json(results);
+  } catch (err) {
+    console.error(err);
+    return res.status(StatusCodes.BAD_REQUEST).end();
   }
+};
 
-  sql += ` LIMIT ? OFFSET ?`;
-  values.push(parseInt(limit), offset);
+const bookDetail = async (req, res) => {
+  try {
+    const { userId } = camelcaseKeys(req.body);
+    const booksId = req.params.id;
+    const sql = `SELECT *,
+      (SELECT COUNT(*) FROM likes WHERE liked_books_id = books.id) AS likes,
+      (SELECT EXISTS (SELECT * FROM likes WHERE users_id = ? AND liked_books_id = ?)) AS liked
+      FROM books
+      LEFT JOIN category ON books.category_id = category.category_id WHERE books.id = ?;
+    `;
+    const values = [userId, booksId, booksId];
+    const results = await queryAsync(sql, values);
 
-  conn.query(sql, values, (err, results) => {
-    if (err) {
-      return res.status(StatusCodes.BAD_REQUEST).end();
-    }
-
-    if (results.length) {
-      return res.status(StatusCodes.OK).json(results);
+    if (results[0]) {
+      res.status(StatusCodes.OK).json(results[0]);
     } else {
-      return res.status(StatusCodes.NOT_FOUND).end();
+      res.status(StatusCodes.NOT_FOUND).end();
     }
-  })
-}
+  } catch (err) {
+    console.error(err);
+    res.status(StatusCodes.BAD_REQUEST).end();
+  }
+};
 
-const bookDetail = (req, res) => {
-  const {users_id} = req.body;
-  const books_id = req.params.id;
-  const sql = `SELECT *,
-    (SELECT count(*) FROM likes WHERE liked_books_id = books.id) AS likes,
-    (SELECT EXISTS (SELECT * FROM likes WHERE users_id = ? AND liked_books_id = ?)) AS liked,
-    FROM books
-    LEFT JOIN category ON books.category_id = category.category_id WHERE books.id = ?;  
-  `;
-  const values = [users_id, books_id, books_id];
-  conn.query(sql, values, (err, results) => {
-    if(err) {
-      return isError();
-    }
+const queryAsync = (sql, values) => {
+  return new Promise((resolve, reject) => {
+    conn.query(sql, values, (err, results) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+};
 
-    if(results[0]){
-      return res.status(StatusCodes.OK).json(results[0]);
-    } else {
-      return res.status(StatusCodes.NOT_FOUND).end();
-    }
-  })
-}
 
 module.exports = {
   allBooks,
