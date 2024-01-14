@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 // connection mariadb module
-router.use(express.json());
 
 const {
   allBooks,
