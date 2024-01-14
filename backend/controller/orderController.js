@@ -11,35 +11,17 @@ const orders = async (req, res) => {
 
   const { items, first_book_title, delivery, total_quantity, total_price, users_id} = req.body;
 
-  let delivery_id;
   let orders_id;
   // 다 const 로 바꾸고 새로운명칭의 변수로 바꿔주기
   let sql = `INSERT INTO delivery (address, receiver, contact) VALUES (?, ?, ?)`
   let values = [delivery.address, delivery.receiver, delivery.contact];
-
-  const [results] = await conn.query(sql, values, (err, results) => {
-    if(err) {
-      console.log(err);
-      return res.status(StatusCodes.BAD_REQUEST).end();
-    }
-
-    delivery_id = results.insertId;
-    return res.status(StatusCodes.OK).json(results);
-  });
+  let [results] = await conn.execute(sql, values);
+  const delivery_id = results.insertId;
 
   sql = `INSERT INTO orders (books_title, total_quantity, total_price, users_id, delivery_id)
           VALUES (?, ?, ?, ?, ?)`;
   values = [first_book_title, total_quantity, total_price, users_id, delivery_id];
-  conn.query(sql, values, (err, results) => {
-    if (err) {
-      console.log(err);
-      return res.status(StatusCodes.BAD_REQUEST).end();
-    }
-
-    orders_id = results.insertId;
-
-    return res.status(StatusCodes.OK).json(results);
-  });
+  [results] = await conn.execute(sql, values);
 
   sql = `INSERT INTO ordered_books (orders_id, books_id, quantity) VALUES ?`;
   values = [];
@@ -47,16 +29,9 @@ const orders = async (req, res) => {
   items.forEach(item => {
     values.push([orders_id, item.books_id, item.quantity]);
   });
-  conn.query(sql, [values], (err, results) => {
-    if (err) {
-      console.log(err);
-      return res.status(StatusCodes.BAD_REQUEST).end();
-    }
+  results = await conn.query(sql, [values]);
 
-    orders_id = results.insertId;
-
-    return res.status(StatusCodes.OK).json(results);
-  });
+  return res.status(StatusCodes.OK).json(results[0]);
 };
 
 const getOrders = (req, res) => {

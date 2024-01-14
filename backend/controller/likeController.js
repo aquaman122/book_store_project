@@ -1,8 +1,5 @@
 const conn = require('../mariadb');
 const {StatusCodes} = require('http-status-codes');
-// JWT module
-const jwt = require( 'jsonwebtoken');
-const crypto = require('crypto'); // crypto 모듈 js기본 암호화 모듈
 
 const addLike = (req, res) => {
 
