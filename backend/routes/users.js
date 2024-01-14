@@ -4,11 +4,6 @@ const { validationRules, emailValidationsRules } = require('../middleware/usersM
 const { body } = require('express-validator');
 const {join, login, passwordRequestReset, passwordChange} = require('../controller/usersController');
 
-// dotenv module and declear
-require("dotenv").config();
-
-router.use(express.json());
-
 // 회원 가입 ( 비밀번호 특수문자 하나,알파벳 소문자 하나, 알파벳 대문자 하나이상 )
 router.post('/join',validationRules,  join);
 
