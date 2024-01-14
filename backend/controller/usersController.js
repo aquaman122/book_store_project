@@ -4,7 +4,6 @@ const {StatusCodes} = require('http-status-codes');
 const jwt = require( 'jsonwebtoken');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto'); // crypto 모듈 js기본 암호화 모듈
-require("dotenv").config();
 
 const join = async (req, res) => {
   try {
