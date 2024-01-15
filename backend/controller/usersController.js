@@ -52,7 +52,7 @@ const login = async (req, res) => {
         },
         process.env.PRIVITE_KEY,
         {
-          expiresIn: '1h',
+          expiresIn: '3m',
           issuer: 'me',
         }
       );
@@ -144,7 +144,7 @@ const passwordChange = async (req, res) => {
       },
       process.env.PRIVITE_KEY,
       {
-        expiresIn: '1h',
+        expiresIn: '3m',
         issuer: 'me',
       }
     );

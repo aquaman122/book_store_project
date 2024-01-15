@@ -1,40 +1,65 @@
+const ensureAuthorization = require('../auth');
+const jwt = require('jsonwebtoken');
 const conn = require('../mariadb');
-const {StatusCodes} = require('http-status-codes');
+const { StatusCodes } = require('http-status-codes');
 
-const addLike = (req, res) => {
+require('dotenv').config();
 
-  const {id} = req.params;
-  const {users_id} = req.body;
+const addLike = async (req, res) => {
+  const bookId = req.params.id;
 
-  const sql = `INSERT INTO likes (users_id, liked_books_id) VALUES (?, ?)`;
-  const values = [users_id, id];
+  try {
+    const authorization = ensureAuthorization(req, res);
 
-  conn.query(sql, values, (err, results) => {
-    if (err) {
-      res.status(StatusCodes.BAD_REQUEST).end();
+    if (authorization instanceof jwt.TokenExpiredError) {
+      return res.status(StatusCodes.UNAUTHORIZED).json({
+        message: '로그인 세션이 만료되었습니다. 다시 로그인 해주세요',
+      });
+    } else if (authorization instanceof jwt.JsonWebTokenError) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: '토큰 값을 확인해주세요',
+      });
+    } else {
+      const sql = 'INSERT INTO likes (users_id, liked_books_id) VALUES (?, ?)';
+      const values = [authorization.id, bookId];
+
+      const results = await conn.query(sql, values);
+      return res.status(StatusCodes.CREATED).json(results);
     }
-
-    return res.status(StatusCodes.OK).json(results);
-  })
+  } catch (error) {
+    console.error(error);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
+  }
 };
 
-const removeLike = (req, res) => {
-  const {id} = req.params;
-  const {users_id} = req.body;
+const removeLike = async (req, res) => {
+  const bookId = req.params.id;
 
-  const sql = `DELETE FROM likes WHERE users_id = ? AND liked_books_id = ?`
-  const values = [users_id, id];
+  try {
+    const authorization = ensureAuthorization(req, res);
 
-  conn.query(sql, values, (err, results) => {
-    if (err) {
-      return res.status(StatusCodes.BAD_REQUEST).end();
+    if (authorization instanceof jwt.TokenExpiredError) {
+      return res.status(StatusCodes.UNAUTHORIZED).json({
+        message: '로그인 세션이 만료되었습니다. 다시 로그인 해주세요',
+      });
+    } else if (authorization instanceof jwt.JsonWebTokenError) {
+      return res.status(StatusCodes.UNAUTHORIZED).json({
+        message: '토큰 값을 확인해주세요',
+      });
+    } else {
+      const sql = 'DELETE FROM likes WHERE users_id = ? AND liked_books_id = ?';
+      const values = [authorization.id, Number(bookId)];
+
+      const results = await conn.query(sql, values);
+      return res.status(StatusCodes.OK).json(results);
     }
-
-    return res.status(StatusCodes.OK).json(results);
-  })
-}
+  } catch (error) {
+    console.error(error);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
+  }
+};
 
 module.exports = {
   addLike,
-  removeLike
-}
+  removeLike,
+};

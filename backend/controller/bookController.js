@@ -1,11 +1,9 @@
 const conn = require('../mariadb');
 const {StatusCodes} = require('http-status-codes');
-const camelcaseKeys = require('camelcase-keys');
-
 
 const allBooks = async (req, res) => {
   try {
-    const { categoryId, news, limit, currentPage } = camelcaseKeys(req.query);
+    const { category_id, news, limit, currentPage } = req.query;
     const parsedLimit = parseInt(limit);
     const parsedCurrentPage = parseInt(currentPage);
     const offset = parsedLimit * (parsedCurrentPage - 1);
@@ -13,12 +11,12 @@ const allBooks = async (req, res) => {
 
     let sql = `SELECT *, (SELECT COUNT(*) FROM likes WHERE books.id = liked_books_id) AS likes FROM books`;
 
-    if (categoryId && news) {
+    if (category_id && news) {
       sql += ` WHERE category_id=? AND pub_date BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND NOW()`;
-      values = [categoryId];
-    } else if (categoryId) {
+      values = [category_id];
+    } else if (category_id) {
       sql += ` LEFT JOIN category ON books.category_id = category.category_id WHERE books.category_id = ? AND pub_date BETWEEN date_sub(NOW(), INTERVAL 1 MONTH) AND NOW()`;
-      values = [categoryId];
+      values = [category_id];
     } else if (news) {
       sql += ` WHERE pub_date BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND NOW()`;
     }
@@ -34,7 +32,7 @@ const allBooks = async (req, res) => {
     console.log(results);
 
     if (results.length === 0) {
-      const message = categoryId ? '해당하는 도서가 없습니다.' : '도서가 없습니다.';
+      const message = category_id ? '해당하는 도서가 없습니다.' : '도서가 없습니다.';
       return res.status(StatusCodes.NOT_FOUND).json({ message });
     }
 
