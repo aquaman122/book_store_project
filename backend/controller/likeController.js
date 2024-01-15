@@ -1,11 +1,17 @@
+const mysql = require('mysql2/promise');
 const ensureAuthorization = require('../auth');
 const jwt = require('jsonwebtoken');
-const conn = require('../mariadb');
 const { StatusCodes } = require('http-status-codes');
-
 require('dotenv').config();
 
 const addLike = async (req, res) => {
+  const conn = await mysql.createConnection({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    database: process.env.DB_NAME
+  });
+
   const bookId = req.params.id;
 
   try {
@@ -23,7 +29,7 @@ const addLike = async (req, res) => {
       const sql = 'INSERT INTO likes (users_id, liked_books_id) VALUES (?, ?)';
       const values = [authorization.id, bookId];
 
-      const results = await conn.query(sql, values);
+      const [results] = await conn.query(sql, values);
       return res.status(StatusCodes.CREATED).json(results);
     }
   } catch (error) {
@@ -33,6 +39,12 @@ const addLike = async (req, res) => {
 };
 
 const removeLike = async (req, res) => {
+  const conn = await mysql.createConnection({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    database: process.env.DB_NAME
+  });
   const bookId = req.params.id;
 
   try {
@@ -50,7 +62,7 @@ const removeLike = async (req, res) => {
       const sql = 'DELETE FROM likes WHERE users_id = ? AND liked_books_id = ?';
       const values = [authorization.id, Number(bookId)];
 
-      const results = await conn.query(sql, values);
+      const [results] = await conn.query(sql, values);
       return res.status(StatusCodes.OK).json(results);
     }
   } catch (error) {

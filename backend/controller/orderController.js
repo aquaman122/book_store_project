@@ -27,7 +27,8 @@ const orders = async (req, res) => {
   sql = `SELECT books_id, quantity FROM cart_items WHERE id IN (?)`;
   const [orderItems, fields] = await conn.query(sql, [items]);
 
-  sql = `INSERT INTO ordered_books (orders_id, books_id, quantity) VALUES (?)`;
+  sql = `INSER
+  T INTO ordered_books (orders_id, books_id, quantity) VALUES (?)`;
   values = [];
   // items.. 배열 : 요소들을 하나씩 꺼내서 forEach
   orderItems[0].forEach(item => {
