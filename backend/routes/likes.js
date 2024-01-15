@@ -4,11 +4,11 @@ const router = express.Router();
 const conn = require('../mariadb');
 
 const {addLike, removeLike} = require('../controller/likeController');
-// JWT module
 
-// 좋아요 추가 PUT
-router.put('/', )
+// 좋아요 추가 
+router.post('/:id', addLike)
 
 // 좋아요 취소 DELETE
+router.delete('/:id', removeLike);
 
 module.exports = router;

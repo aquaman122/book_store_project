@@ -4,6 +4,7 @@ const {StatusCodes} = require('http-status-codes');
 const jwt = require( 'jsonwebtoken');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto'); // crypto 모듈 js기본 암호화 모듈
+require('dotenv').config();
 
 const join = async (req, res) => {
   try {
@@ -48,11 +49,12 @@ const login = async (req, res) => {
     if (passwordMatch) {
       const token = jwt.sign(
         {
-          email: loginUser.emailpasswordMatch
+          id: loginUser.id,
+          email: loginUser.email
         },
-        process.env.PRIVITE_KEY,
+        process.env.PRIVATE_KEY,
         {
-          expiresIn: '1h',
+          expiresIn: '3m',
           issuer: 'me',
         }
       );
@@ -144,7 +146,7 @@ const passwordChange = async (req, res) => {
       },
       process.env.PRIVITE_KEY,
       {
-        expiresIn: '1h',
+        expiresIn: '3m',
         issuer: 'me',
       }
     );

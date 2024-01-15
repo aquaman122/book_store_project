@@ -1,11 +1,16 @@
-const conn = require('../mariadb');
+const mysql = require('mysql2/promise');
 const {StatusCodes} = require('http-status-codes');
-const camelcaseKeys = require('camelcase-keys');
-
 
 const allBooks = async (req, res) => {
+  const conn = await mysql.createConnection({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    database: process.env.DB_NAME
+  });
+
   try {
-    const { categoryId, news, limit, currentPage } = camelcaseKeys(req.query);
+    const { category_id, news, limit, currentPage } = req.query;
     const parsedLimit = parseInt(limit);
     const parsedCurrentPage = parseInt(currentPage);
     const offset = parsedLimit * (parsedCurrentPage - 1);
@@ -13,12 +18,12 @@ const allBooks = async (req, res) => {
 
     let sql = `SELECT *, (SELECT COUNT(*) FROM likes WHERE books.id = liked_books_id) AS likes FROM books`;
 
-    if (categoryId && news) {
+    if (category_id && news) {
       sql += ` WHERE category_id=? AND pub_date BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND NOW()`;
-      values = [categoryId];
-    } else if (categoryId) {
+      values = [category_id];
+    } else if (category_id) {
       sql += ` LEFT JOIN category ON books.category_id = category.category_id WHERE books.category_id = ? AND pub_date BETWEEN date_sub(NOW(), INTERVAL 1 MONTH) AND NOW()`;
-      values = [categoryId];
+      values = [category_id];
     } else if (news) {
       sql += ` WHERE pub_date BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND NOW()`;
     }
@@ -30,11 +35,10 @@ const allBooks = async (req, res) => {
     }
     values.push(parsedLimit, offset);
 
-    const results = await queryAsync(sql, values);
-    console.log(results);
+    const [results] = await conn.execute(sql, values);
 
     if (results.length === 0) {
-      const message = categoryId ? '해당하는 도서가 없습니다.' : '도서가 없습니다.';
+      const message = category_id ? '해당하는 도서가 없습니다.' : '도서가 없습니다.';
       return res.status(StatusCodes.NOT_FOUND).json({ message });
     }
 
@@ -46,8 +50,15 @@ const allBooks = async (req, res) => {
 };
 
 const bookDetail = async (req, res) => {
+  const conn = await mysql.createConnection({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    database: process.env.DB_NAME
+  });
+
   try {
-    const { userId } = camelcaseKeys(req.body);
+    const { users_id } = req.body;
     const booksId = req.params.id;
     const sql = `SELECT *,
       (SELECT COUNT(*) FROM likes WHERE liked_books_id = books.id) AS likes,
@@ -55,8 +66,8 @@ const bookDetail = async (req, res) => {
       FROM books
       LEFT JOIN category ON books.category_id = category.category_id WHERE books.id = ?;
     `;
-    const values = [userId, booksId, booksId];
-    const results = await queryAsync(sql, values);
+    const values = [users_id, booksId, booksId];
+    const results = await conn.execute(sql, values);
 
     if (results[0]) {
       res.status(StatusCodes.OK).json(results[0]);
@@ -68,19 +79,6 @@ const bookDetail = async (req, res) => {
     res.status(StatusCodes.BAD_REQUEST).end();
   }
 };
-
-const queryAsync = (sql, values) => {
-  return new Promise((resolve, reject) => {
-    conn.query(sql, values, (err, results) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(results);
-      }
-    });
-  });
-};
-
 
 module.exports = {
   allBooks,
