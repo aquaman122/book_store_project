@@ -1,24 +1,28 @@
-const conn = require('../mariadb');
+const mysql = require('mysql2/promise');
 const {StatusCodes} = require('http-status-codes');
 
-const isError = (res) => {
-  console.log(err)
-  return res.status(StatusCodes.BAD_REQUEST).end();
-}
-
 const allCategory = async (req, res) => {
-  const connection = await conn.getConnection();
+  const conn = await mysql.createConnection({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    database: process.env.DB_NAME
+  });
+
   const sql = `SELECT * FROM category`;
   try {
-   const [rows] = await connection.query(sql);
+   const results = await conn.execute(sql);
 
-   if (rows.length === 0) {
+   if (results.length === 0) {
     return res.status(StatusCodes.NOT_FOUND).end(); 
    }
 
-   return res.status(StatusCodes.OK).json(rows);
+   return res.status(StatusCodes.OK).json(results);
   } catch (err) {
-    return isError(res);
+    console.log(err);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      error: '카테고리 조회 중 에러가 발생하였습니다.',
+  });
   } finally {
     connection.release();
   }
