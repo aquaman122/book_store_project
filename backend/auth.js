@@ -15,4 +15,4 @@ const ensureAuthorization = (req, res) => {
   }
 }
 
-module.exports = ensureAuthorization
+module.exports = ensureAuthorization;
