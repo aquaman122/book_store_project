@@ -1,29 +1,56 @@
-const conn = require('../mariadb');
-const {StatusCodes} = require('http-status-codes');
-
-const isError = (res) => {
-  console.log(err)
-  return res.status(StatusCodes.BAD_REQUEST).end();
-}
+const pool = require("../mariadb");
+const { StatusCodes } = require('http-status-codes');
 
 const allCategory = async (req, res) => {
-  const connection = await conn.getConnection();
-  const sql = `SELECT * FROM category`;
+  let conn;
   try {
-   const [rows] = await connection.query(sql);
+    conn = await pool.getConnection();
+    // 쿼리
+    const rows = await conn.query(`SELECT * FROM category`);
 
-   if (rows.length === 0) {
-    return res.status(StatusCodes.NOT_FOUND).end(); 
-   }
+    if (rows.length === 0) {
+      return res.status(StatusCodes.NOT_FOUND).end(); 
+    }
 
-   return res.status(StatusCodes.OK).json(rows);
+    return res.status(StatusCodes.OK).json(rows);
   } catch (err) {
-    return isError(res);
+    console.error(err);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      error: '카테고리 조회 중 에러가 발생하였습니다.'
+    });
   } finally {
-    connection.release();
+    if (conn) {
+      conn.end(); // 커넥션 반환
+    }
   }
-}
+};
 
 module.exports = {
   allCategory
-}
+};
+
+
+// const connection = require("../mariadb");
+// const { StatusCodes } = require('http-status-codes');
+
+// const allCategory = async (req, res) => {
+//   try {
+//     // 쿼리
+//     const [results] = await connection.query(`SELECT * FROM category`);
+
+//     if (results.length === 0) {
+//       return res.status(StatusCodes.NOT_FOUND).end(); 
+//     }
+
+//     return res.status(StatusCodes.OK).json(results);
+//   } catch (err) {
+//     console.error(err);
+//     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+//       error: '카테고리 조회 중 에러가 발생하였습니다.'
+//     });
+//   }
+// };
+
+// module.exports = {
+//   allCategory
+// };

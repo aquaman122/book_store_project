@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { validationRules, emailValidationsRules } = require('../middleware/usersMiddleware');
 const { body } = require('express-validator');
-const {join, login, passwordRequestReset, passwordChange} = require('../controller/usersController');
+const {join, login, emailRequest, resetPassword} = require('../controller/usersController');
 
 // 회원 가입 ( 비밀번호 특수문자 하나,알파벳 소문자 하나, 알파벳 대문자 하나이상 )
 router.post('/join',validationRules,  join);
@@ -11,9 +11,9 @@ router.post('/join',validationRules,  join);
 router.post('/login', validationRules, login);
 
 // 비밀번호 초기화
-router.post('/reset', emailValidationsRules, passwordRequestReset)
+router.post('/reset', emailValidationsRules, emailRequest)
 // 비밀번호 수정
-router.put('/reset', [...validationRules, body('newPassword').isStrongPassword().withMessage('특수문자 하나,알파벳 소문자 하나, 알파벳 대문자 하나이상')], passwordChange);
+router.put('/reset', [body('email').isEmail().withMessage("이메일로 해"), body('newPassword').isStrongPassword().withMessage('특수문자 하나,알파벳 소문자 하나, 알파벳 대문자 하나이상')], resetPassword);
 
 
 module.exports = router;

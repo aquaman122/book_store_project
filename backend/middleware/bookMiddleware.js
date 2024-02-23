@@ -5,7 +5,7 @@ const isValidate = (req, res, next) => {
   const err = validationResult(req);
 
   if (err.isEmpty()) {
-    return next;
+    return next();
   }
 
   res.status(StatusCodes.BAD_REQUEST).json(err.array());

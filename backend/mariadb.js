@@ -1,13 +1,13 @@
-const mysql = require('mysql2');
-require('dotenv').config()
+const mariadb = require('mariadb');
+require('dotenv').config();
 
-// create the connection to database
-const connection = mysql.createConnection({
+// 커넥션 풀 생성
+const pool = mariadb.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASS,
-  database: process.env.DB_NAME
+  database: process.env.DB_NAME,
+  connectionLimit: 5 // 적절한 연결 수 설정
 });
 
-module.exports = connection;
-
+module.exports = pool;
