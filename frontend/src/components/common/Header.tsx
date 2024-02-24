@@ -9,6 +9,7 @@ import { useAuthStore } from "../../store/authStore";
 
 function Header() {
   const { category } = useCategory();
+  // token값 사용
   const { isloggedIn, storeLogout } = useAuthStore();
 
   return (

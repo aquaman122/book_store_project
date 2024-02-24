@@ -23,6 +23,7 @@ export default function Login() {
   } = useForm<SignupProps>();
 
   const onSubmit = (data: SignupProps) => {
+    // auth.api 에서 login 가져옴
     login(data).then((res) => {
       // 상태변화
       storeLogin(res.token);
