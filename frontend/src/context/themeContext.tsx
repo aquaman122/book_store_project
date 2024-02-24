@@ -22,6 +22,7 @@ export const BookStoreThemeProvider = ({children} : { children: ReactNode }) => 
   const [themeName, setThemeName] = useState<ThemeName>(DEFAULT_THEME_NAME);
 
   useEffect(() => {
+    // localStorage에 저장
     const savedThemeName = localStorage.getItem(THEME_LOCALSTORAGE_KEY) as ThemeName;
     setThemeName(savedThemeName ||  DEFAULT_THEME_NAME);
   }, []);
@@ -29,7 +30,7 @@ export const BookStoreThemeProvider = ({children} : { children: ReactNode }) => 
   const toggleTheme = () => {
     setThemeName((prevThemeName) => {
       const newThemeName =  prevThemeName  === "light" ? "dark" : "light";
-      localStorage.setItem(THEME_LOCALSTORAGE_KEY, newThemeName === "light" ? "dark" : "light");
+      localStorage.setItem(THEME_LOCALSTORAGE_KEY, newThemeName === "dark" ? "light" : "dark");
       return newThemeName;
     });
   };
