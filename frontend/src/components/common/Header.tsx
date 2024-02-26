@@ -1,5 +1,5 @@
 import React from "react";
-import { styled } from 'styled-components';
+import styled from "styled-components";
 import logo from "../../assets/images/logo.png"
 import { FaSignInAlt, FaRegUser } from "react-icons/fa";
 import { Link } from "react-router-dom";
@@ -24,7 +24,7 @@ function Header() {
           <ul>
             {category.map((item) => (
               <li key={item.id}>
-                <Link to={item.id === null ? "/books" : `books?category_id=${item.id}`}>
+                <Link to={item.id === null ? "/books" : `?category_id=${item.id}`}>
                   {item.name}
                 </Link>
               </li>
@@ -52,7 +52,7 @@ function Header() {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/login">
+                  <Link to="/signup">
                     <FaRegUser />회원가입
                   </Link>
                 </li>

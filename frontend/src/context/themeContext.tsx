@@ -30,7 +30,7 @@ export const BookStoreThemeProvider = ({children} : { children: ReactNode }) => 
   const toggleTheme = () => {
     setThemeName((prevThemeName) => {
       const newThemeName =  prevThemeName  === "light" ? "dark" : "light";
-      localStorage.setItem(THEME_LOCALSTORAGE_KEY, newThemeName === "dark" ? "light" : "dark");
+      localStorage.setItem(THEME_LOCALSTORAGE_KEY, newThemeName);
       return newThemeName;
     });
   };

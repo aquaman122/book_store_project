@@ -39,7 +39,7 @@ export const light: Theme = {
     secondary: "#5F5F5F",
     third : "green",
     border: "gray",
-    text: "black"
+    text: "dark",
   },
   heading: {
     large: {
@@ -97,7 +97,7 @@ export const dark: Theme = {
     secondary: "darkblue",
     third : "darkgreen",
     border: "gray",
-    text: "black",
+    text: "white",
   }
 }
 

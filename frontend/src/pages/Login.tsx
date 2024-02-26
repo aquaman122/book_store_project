@@ -57,7 +57,7 @@ export default function Login() {
             {errors.password && <p className="error-text">비밀번호 입력해주세요.</p>}
           </fieldset>
           <fieldset>
-            <Button type="submit" size="medium" scheme="primary">로그인</Button>
+            <Button type="submit" size="small" scheme="normal">로그인</Button>
           </fieldset>
           <div className="info">
             <Link to="/reset">비밀번호 초기화</Link>
