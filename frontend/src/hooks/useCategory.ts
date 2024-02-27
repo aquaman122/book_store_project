@@ -15,7 +15,7 @@ export const useCategory = () => {
         return prev.map((item) => {
           return {
             ...item,
-            isActive: item.id === Number(params.get("category_id")),
+            isActive: item.category_id === Number(params.get("category_id")),
           };
         });
       });
@@ -37,7 +37,7 @@ export const useCategory = () => {
 
       const categoryWithAll = [
         {
-          id: null,
+          category_id: null,
           name: "전체",
         },
         ...category,
