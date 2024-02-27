@@ -8,6 +8,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import Books from "./pages/Books";
+import BookDetail from "./pages/BookDetail";
 
 const router = createBrowserRouter([
   {
@@ -25,7 +26,7 @@ const router = createBrowserRouter([
       <Layout>
         <Signup />
       </Layout>
-    )
+    ),
   },
   {
     path: "/reset",
@@ -33,7 +34,7 @@ const router = createBrowserRouter([
       <Layout>
         <ResetPassword />
       </Layout>
-    )
+    ),
   },
   {
     path: "/login",
@@ -41,7 +42,15 @@ const router = createBrowserRouter([
       <Layout>
         <Login />
       </Layout>
-    )
+    ),
+  },
+  {
+    path: "/book/:bookId",
+    element: (
+      <Layout>
+        <BookDetail />
+      </Layout>
+    ),
   },
 ])
 
