@@ -23,8 +23,8 @@ function Header() {
         <nav className="category">
           <ul>
             {category.map((item) => (
-              <li key={item.id}>
-                <Link to={item.id === null ? "/books" : `?category_id=${item.id}`}>
+              <li key={item.category_id}>
+                <Link to={item.category_id === null ? "/books" : `?category_id=${item.category_id}`}>
                   {item.name}
                 </Link>
               </li>
@@ -111,7 +111,7 @@ const HeaderStyle = styled.header`
           font-weight: 600;
           text-decoration: none;
           display: flex;
-          align-item: center;
+          align-items: center;
           line-height: 1;
           background: none;
           border: 0;
