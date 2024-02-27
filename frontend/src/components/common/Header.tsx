@@ -1,5 +1,5 @@
 import React from "react";
-import { styled } from 'styled-components';
+import styled from "styled-components";
 import logo from "../../assets/images/logo.png"
 import { FaSignInAlt, FaRegUser } from "react-icons/fa";
 import { Link } from "react-router-dom";
@@ -9,6 +9,7 @@ import { useAuthStore } from "../../store/authStore";
 
 function Header() {
   const { category } = useCategory();
+  // token값 사용
   const { isloggedIn, storeLogout } = useAuthStore();
 
   return (
@@ -22,8 +23,8 @@ function Header() {
         <nav className="category">
           <ul>
             {category.map((item) => (
-              <li key={item.id}>
-                <Link to={item.id === null ? "/books" : `books?category_id=${item.id}`}>
+              <li key={item.category_id}>
+                <Link to={item.category_id === null ? "/books" : `?category_id=${item.category_id}`}>
                   {item.name}
                 </Link>
               </li>
@@ -51,7 +52,7 @@ function Header() {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/login">
+                  <Link to="/signup">
                     <FaRegUser />회원가입
                   </Link>
                 </li>
@@ -110,7 +111,7 @@ const HeaderStyle = styled.header`
           font-weight: 600;
           text-decoration: none;
           display: flex;
-          align-item: center;
+          align-items: center;
           line-height: 1;
           background: none;
           border: 0;

@@ -12,6 +12,7 @@
     "@types/react-dom": "^18.2.19",
     "@types/react-router-dom": "^5.3.3",
     "axios": "^1.6.7",
+    "dayjs": "^1.11.10",
     "eslint": "^8.56.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -48,5 +49,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11"
   }
 }

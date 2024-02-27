@@ -1,5 +1,5 @@
 import React from "react";
-import {styled} from "styled-components";
+import styled from "styled-components";
 import { ButtonScheme, ButtonSize } from "../../style/theme";
 
 interface Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -10,10 +10,10 @@ interface Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   isLoading?: boolean;
 }
 
-export default function Button({children, size, scheme, disabled, isLoading}: Props) {
+export default function Button({children, size, scheme, disabled, isLoading, onClick}: Props) {
 
   return (
-    <ButtonStyle size={size} scheme={scheme} disabled={disabled} isLoading={isLoading}>
+    <ButtonStyle size={size} scheme={scheme} disabled={disabled} isLoading={isLoading} onClick={onClick}>
       {children}
     </ButtonStyle>
   );
@@ -28,5 +28,5 @@ const ButtonStyle = styled.button<Omit<Props, "children">>`
   border-radius: ${({theme}) => theme.borderRadius.default};
   opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
   pointer-events: ${({ disabled }) => (disabled ? "none" : "auto")};
-  cursor: ${({ disabled }) => (disabled ? "none" : "pointer")}
+  cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")}
 `;

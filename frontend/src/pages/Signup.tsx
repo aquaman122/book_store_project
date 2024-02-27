@@ -16,12 +16,6 @@ export interface SignupProps {
 export default function Signup() {
   const navigate = useNavigate();
   const showAlert = useAlert();
-  // const [email, setEmail] = useState("");
-  // const [password, setPassword] = useState("");
-
-  // const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-  //   event.preventDefault();
-  // }
 
   const { register, handleSubmit, formState: { errors } 
   } = useForm<SignupProps>();
