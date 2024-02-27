@@ -6,6 +6,7 @@ const crypto = require('crypto'); // crypto 모듈 js기본 암호화 모듈
 require('dotenv').config();
 
 const join = async (req, res) => {
+  const connection = await pool.getConnection();
   try {
     const { email, password } = req.body;
     // 회원가입 시 비밀번호 암호화, 암호화된 비밀번호와 salt 값 같이 저장
@@ -16,7 +17,7 @@ const join = async (req, res) => {
     const sql = `INSERT INTO users (email, password) VALUES (?, ?)`;
     const values = [email, hashedPassword];
 
-    const results = await pool.query(sql, values);
+    const [results] = await connection.query(sql, values);
     if (results && results.affectedRows > 0) {
       res.status(StatusCodes.CREATED).json({
         message: '회원가입 완료'
@@ -27,25 +28,26 @@ const join = async (req, res) => {
   } catch (err) {
     console.error(err);
     return res.status(StatusCodes.BAD_REQUEST).end();
-  }
+  } 
 }
 
 
 const login = async (req, res) => {
+  const connection = await pool.getConnection();
   try {
     const { email, password } = req.body;
     const sql = `SELECT * FROM users WHERE email = ?`;
-    const results = await pool.execute(sql, [email]); // Changed from pool.query to pool.execute
-
+    const [results] = await connection.execute(sql, [email]); // Changed from pool.query to pool.execute
+  
     if (results.length === 0) {
       return res.status(StatusCodes.UNAUTHORIZED).json({
         message: '이메일이나 패스워드가 틀림요',
       });
     }
-
+  
     const loginUser = results[0];
     const passwordMatch = await bcrypt.compare(password, loginUser.password);
-
+  
     if (passwordMatch) {
       const token = jwt.sign(
         {
@@ -58,7 +60,7 @@ const login = async (req, res) => {
           issuer: 'me',
         }
       );
-
+  
       res.cookie('token', token, {
         httpOnly: true,
       });
@@ -77,6 +79,8 @@ const login = async (req, res) => {
     res.status(StatusCodes.UNAUTHORIZED).json({
       message: 'Internal Server Error',
     });
+  } finally {
+    connection.release();
   }
 };
 
