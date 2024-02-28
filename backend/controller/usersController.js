@@ -141,7 +141,7 @@ const resetPassword = async (req, res) => {
       },
       process.env.PRIVATE_KEY,
       {
-        expiresIn: '3m',
+        expiresIn: '1h',
         issuer: 'me',
       }
     );

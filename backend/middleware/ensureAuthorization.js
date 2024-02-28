@@ -3,7 +3,7 @@ const { StatusCodes } = require('http-status-codes');
 require('dotenv').config();
 
 const verifyTokenOptional = (req, res, next) => {
-  const token = req.cookies.token;
+  const token = req.headers['authorization'] || req.headers['Authorization'];
   if (!token) {
     next();
     return;
@@ -17,6 +17,7 @@ const verifyTokenOptional = (req, res, next) => {
     if (err instanceof jwt.TokenExpiredError) {
       return res.status(StatusCodes.UNAUTHORIZED).json({
           message: '로그인 세션이 만료되었습니다. 다시 로그인해주세요.',
+          refreshTokenRequired: true,
       });
     } else if (err instanceof jwt.JsonWebTokenError) {
       return res.status(StatusCodes.UNAUTHORIZED).json({
@@ -32,7 +33,7 @@ const verifyTokenOptional = (req, res, next) => {
 };
 
 const verifyToken = (req, res, next) => {
-  const token = req.cookies.token;
+  const token = req.headers['authorization'] || req.headers['Authorization'];
   
   if (!token) {
     return res.status(StatusCodes.UNAUTHORIZED).json({
@@ -48,6 +49,7 @@ const verifyToken = (req, res, next) => {
     if (err instanceof jwt.TokenExpiredError) {
       return res.status(StatusCodes.UNAUTHORIZED).json({
         message: '로그인 세션이 만료되었습니다. 다시 로그인해주세요.',
+        refreshTokenRequired: true,
       });
     } else if (err instanceof jwt.JsonWebTokenError) {
       return res.status(StatusCodes.UNAUTHORIZED).json({
@@ -63,6 +65,6 @@ const verifyToken = (req, res, next) => {
 };
 
 module.exports = {
-    verifyToken,
-    verifyTokenOptional,
+  verifyToken,
+  verifyTokenOptional,
 };
