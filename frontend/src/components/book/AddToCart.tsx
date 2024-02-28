@@ -13,7 +13,7 @@ interface Props {
 }
 
 export default function AddToCart({ book }: Props) {
-  const showAlert = useAlert();
+  const {showAlert} = useAlert();
   const [quantity, setQuantity] = useState<number>(1);
   const { addToCart, cartAdded } = useBook(book.id.toString());
 

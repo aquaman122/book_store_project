@@ -16,7 +16,7 @@ export interface SignupProps {
 
 export default function Login() {
   const navigate = useNavigate();
-  const showAlert = useAlert();
+  const {showAlert} = useAlert();
   const { isloggedIn, storeLogin, storeLogout } = useAuthStore();// 상태와 액션 2개
 
   const { register, handleSubmit, formState: { errors } 

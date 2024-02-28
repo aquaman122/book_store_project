@@ -14,7 +14,7 @@ export const useBook = (bookId: string | undefined) => {
   const likeToggle = () => {
     // 권한 확인
     if (!isloggedIn) {
-      showAlert("로그인이 필요합니다.");
+      {showAlert}("로그인이 필요합니다.");
       return;
     }
 
@@ -44,7 +44,7 @@ export const useBook = (bookId: string | undefined) => {
   const addToCart = (quantity: number) => {
     if (!book) return;
     addCart({
-      book_id: book.id,
+      books_id: book.id,
       quantity: quantity,
     }).then(() => {
       // showAlert("장바구니에 추가되었습니다");
