@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 // connection mariadb module
-const conn = require('../mariadb');
 
 const {addLike, removeLike} = require('../controller/likeController');
 
