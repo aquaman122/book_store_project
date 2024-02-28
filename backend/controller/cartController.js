@@ -1,82 +1,145 @@
 const pool = require("../mariadb");
-const ensureAuthorization = require('../auth'); // auth 파일이 있는 경로에 맞게 수정해야 합니다.
 const { StatusCodes } = require('http-status-codes');
 const jwt = require('jsonwebtoken');
+
+const checkExist = `SELECT (SELECT COUNT(*) FROM users WHERE id = ?) AS user_exists, (SELECT COUNT(*) FROM books WHERE id = ?) AS book_exists`
+
+const checkExistValues = async (connection, values) => {
+  const [rows] = await connection.query(checkExist,values);
+  return {
+    user_exists: rows[0].user_exists === 1,
+    book_exists: rows[0].book_exists === 1,
+  }
+}
 
 // 장바구니에 상품 추가
 const addToCart = async (req, res) => {
   const connection = await pool.getConnection();
+  const { books_id, quantity } = req.body;
+  const user_id = req.user_id;
+
+  const sqlInsertCart = 'INSERT INTO cart_items (books_id, quantity, user_id) VALUES (?, ?, ?)';
+  const sqlSelectCart = 'SELECT * FROM cart_items WHERE user_id = ? AND books_id = ?';
+  const sqlUpdateCart = 'UPDATE cart_items SET quantity = quantity + ? WHERE user_id = ? AND books_id = ?';
+  const values = [books_id, quantity, user_id];
+  const existValues = [user_id, books_id];
+
   try {
-    const { books_id, quantity, user_id } = req.body;
-    const authorization = ensureAuthorization(req, res);
-    if (authorization instanceof jwt.TokenExpiredError) {
-      return res.status(StatusCodes.UNAUTHORIZED).json({
-        message: "로그인 세션이 만료되었습니다. 다시 로그인 해주세요",
+    const { book_exists } = await checkExistValues(connection, existValues)
+
+    if (!book_exists) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        message: "책 없음."
       });
-    } else if (authorization instanceof jwt.JsonWebTokenError) {
-      return res.status(StatusCodes.UNAUTHORIZED).json({
-        message: "토큰 값을 확인해주세요",
+    }
+
+    const [results] = await connection.query(sqlSelectCart, existValues);
+
+    if (results.length > 0) {
+      const [resultsUpdate] = await connection.query(sqlUpdateCart, [quantity, user_id, books_id]);
+
+      if (resultsUpdate.affectedRows > 0) {
+        return res.status(StatusCodes.OK).json({
+          message: "이미 장바구니에 있음"
+        });
+      } else {
+        return res.status(StatusCodes.BAD_REQUEST).json({
+          message: "장바구니 추가 실패.",
+        });
+      }
+    }
+
+    const [resultsInsert] = await connection.query(sqlInsertCart, values);
+
+    if (resultsInsert.affectedRows > 0) {
+      return res.status(StatusCodes.CREATED).json({
+        message: "장바구니에 도서 추가.",
       });
     } else {
-      const sql = `INSERT INTO cart_items (books_id, quantity, user_id) VALUES (?, ?, ?)`;
-      const values = [books_id, quantity, user_id];
-      const [results] = await connection.query(sql, values);
-      return res.status(StatusCodes.OK).json({ message: '상품이 장바구니에 추가되었습니다.' });
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: "장바구니 추가 실패."
+      });
     }
   } catch (err) {
-    console.error(err);
-    return res.status(StatusCodes.BAD_REQUEST).end();
+    console.log(err);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: "장바구니 추가 문제 발생."
+    });
   } finally {
     connection.release();
   }
-};
+  }
 
 // 장바구니 아이템 목록 조회
 const getCartItems = async (req, res) => {
   const connection = await pool.getConnection();
+  const user_id = req.user_id;
+  const { selected } = req.body;
+
+  const sqlSelectAllCart = `SELECT cart_items.id, books_id, title, summary, quantity, price
+  FROM cart_items LEFT JOIN books ON cart_items.books_id = books.id WHERE user_id = ?`;
+  const sqlSelectSelectedCart = `SELECT cart_items.id, books_id, title, summary, quantity, price FROM cart_items
+  LEFT JOIN books ON cart_items.books_id = books.id WHERE user_id = ? AND cart_items.id IN (?)`;
+
+  let sqlSelectCart;
+  let values;
+
+  if (selected && selected.length > 0) {
+    sqlSelectCart = sqlSelectSelectedCart;
+    values = [user_id, selected];
+  } else {
+    sqlSelectCart = sqlSelectAllCart;
+    values = [user_id];
+  }
+
   try {
-    const { selected } = req.body;
-    const authorization = ensureAuthorization(req, res);
-    if (authorization instanceof jwt.TokenExpiredError) {
-      return res.status(StatusCodes.UNAUTHORIZED).json({
-        message: "로그인 세션이 만료되었습니다. 다시 로그인 해주세요",
-      });
-    } else if (authorization instanceof jwt.JsonWebTokenError) {
-      return res.status(StatusCodes.UNAUTHORIZED).json({
-        message: "토큰 값을 확인해주세요",
-      });
+    const [rowsSelect] = await connection.query(sqlSelectCart, [user_id, selected]);
+
+    if (rowsSelect.length > 0) {
+      return res.status(StatusCodes.OK).json(rowsSelect);
     } else {
-      let sql = `SELECT cart_items.id, books_id, title, summary, quantity, price
-      FROM cart_items LEFT JOIN books
-      ON cart_items.books_id = books.id
-      WHERE user_id=?`;
-      let values = [authorization.id, selected];
-      if (selected) {
-        sql += ` AND cart_items.id IN (?)`;
-        values.push(selected);
-      }
-      const [results] = await connection.query(sql, values);
-      return res.status(StatusCodes.OK).json(results);
+      return res.status(StatusCodes.NOT_FOUND).json({
+        message: "장바구니안에 도서없음."
+      });
     }
   } catch (err) {
-    console.error(err);
-    return res.status(StatusCodes.BAD_REQUEST).end();
+    console.log(err);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: "장바구니 조회 중 문제 발생."
+    });
   } finally {
     connection.release();
   }
+  
 };
+
 
 // 장바구니 아이템 삭제
 const removeCartItems = async (req, res) => {
   const connection = await pool.getConnection();
+    const books_id = req.params.id;
+    const user_id = req.user_id;
+    const values = [books_id, user_id];
+
+    const sqlDeleteCart = 'DELETE FROM cart_items WHERE id = ? AND user_id = ?';
+
   try {
-    const { id } = req.params;
-    const sql = `DELETE FROM cart_items WHERE id = ?`;
-    const [results] = await connection.query(sql, [id]);
-    return res.status(StatusCodes.OK).json({ message: '장바구니에서 상품이 삭제되었습니다.' });
+    const [rowDelete] = await connection.query(sqlDeleteCart, values);
+
+    if (rowDelete.affectedRows > 0) {
+      return res.status(StatusCodes.OK).json({
+        message: "장바구니 도서 삭제."
+      });
+    } else {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: "장바구니 도서 삭제 불가."
+      });
+    }
   } catch (err) {
-    console.error(err);
-    return res.status(StatusCodes.BAD_REQUEST).end();
+    console.log(err);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: "장바구니 도서 삭제중 문제 발생."
+    });
   } finally {
     connection.release();
   }

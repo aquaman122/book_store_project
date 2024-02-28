@@ -1,12 +1,12 @@
 const pool = require('../mariadb'); // mariadb.js 파일에서 pool 가져오기
-const ensureAuthorization = require('../auth');
+const {verifyToken} = require('../middleware/ensureAuthorization');
 const { StatusCodes } = require('http-status-codes');
 
 const orders = async (req, res) => {
   let conn;
   try {
     conn = await pool.getConnection(); // mariadb 풀에서 연결 가져오기
-    const authorization = ensureAuthorization(req, res);
+    const authorization = verifyToken(req, res);
 
     if (authorization instanceof jwt.TokenExpiredError) {
       return res.status(StatusCodes.UNAUTHORIZED).json({

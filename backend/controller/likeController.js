@@ -1,5 +1,5 @@
 const pool = require('../mariadb'); // mariadb.js 파일에서 pool 가져오기
-const ensureAuthorization = require('../auth');
+const {verifyToken} = require('../middleware/ensureAuthorization');
 const jwt = require("jsonwebtoken")
 const { StatusCodes } = require('http-status-codes');
 
@@ -8,7 +8,7 @@ const addLike = async (req, res) => {
   try {
     let bookId = req.params.id;
     parseInt(bookId);
-    const authorization = ensureAuthorization(req, res);
+    const authorization = verifyToken(req, res);
 
     if (authorization instanceof jwt.TokenExpiredError) {
       return res.status(StatusCodes.UNAUTHORIZED).json({
@@ -44,7 +44,7 @@ const removeLike = async (req, res) => {
   try {
     let bookId = req.params.id;
     parseInt(bookId);
-    const authorization = ensureAuthorization(req, res);
+    const authorization = verifyToken(req, res);
 
     if (authorization instanceof jwt.TokenExpiredError) {
       return res.status(StatusCodes.UNAUTHORIZED).json({
