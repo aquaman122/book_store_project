@@ -55,20 +55,17 @@ const login = async (req, res) => {
         },
         process.env.PRIVATE_KEY,
         {
-          expiresIn: '1h',
+          expiresIn: '10000000000m',
           issuer: 'me',
         }
       );
   
       res.cookie('token', token, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "none",
+        httpOnly: true
       });
       res.status(StatusCodes.OK).json({
-        message: `${loginUser.email}님 로그인`,
-        token: token,
-      });
+        ...results[0],
+        token: token });
     } else {
       res.status(StatusCodes.UNAUTHORIZED).json({
         message: `이메일 또는 패스워드가 틀렸습니다.`,
@@ -141,7 +138,7 @@ const resetPassword = async (req, res) => {
       },
       process.env.PRIVATE_KEY,
       {
-        expiresIn: '1h',
+        expiresIn: '10000000000m',
         issuer: 'me',
       }
     );
