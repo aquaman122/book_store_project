@@ -48,6 +48,7 @@ export default function ResetPassword() {
             />
             {errors.email && <p className="error-text">이메일을 입력해주세요.</p>}
           </fieldset>
+
           {resetRequested && (
              <fieldset>
              <InputText 
