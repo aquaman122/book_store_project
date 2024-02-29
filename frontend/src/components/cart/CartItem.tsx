@@ -1,6 +1,5 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
-import { useAlert } from "../../hooks/useAlert";
 import { Cart } from "../../models/cart.model";
 import { formatNumber } from "../../utils/format";
 import Button from "../common/Button";
@@ -15,7 +14,7 @@ interface Props {
 }
 
 export default function CartItem({ cart, checkedItems, onCheck, onDelete }: Props) {
-  const { showConfirm } = useAlert();
+  // const { showConfirm } = useAlert();
   // checkedItems 목록에 내가 있는지 판다 = checked
   const isChecked = useMemo(() => {
     return checkedItems.includes(cart.id);
@@ -35,7 +34,9 @@ export default function CartItem({ cart, checkedItems, onCheck, onDelete }: Prop
   return (
     <CartItemStyle>
       <div className="info">
-        <div><CheckIconButton isChecked={isChecked} onCheck={handleCheck} /></div>
+        <div className="check">
+          <CheckIconButton isChecked={isChecked} onCheck={handleCheck} />
+        </div>
         <div>
           <Title size="medium">{cart.title}</Title>
           <p className="summary">{cart.summary}</p>
@@ -43,7 +44,7 @@ export default function CartItem({ cart, checkedItems, onCheck, onDelete }: Prop
           <p className="quantity">{cart.quantity} 권</p>
         </div>
       </div>
-      <Button size="small" scheme="normal" onClick={handleDelete}>장바구니 삭제</Button>
+      <Button size="medium" scheme="normal" onClick={handleDelete}>장바구니 삭제</Button>
     </CartItemStyle>
   );
 }
@@ -54,10 +55,36 @@ const CartItemStyle = styled.div`
   align-items: start;
   border: 1px solid ${({ theme }) => theme.color.border};
   border-radius: ${({ theme }) => theme.borderRadius.default};
-  padding: 12px;
+  padding: 6px;
 
   p {
-    padding: 0 0 8px 0;
+    padding: 0 0 4px 0;
     margin: 0;
+  }
+
+  .info {
+    display: flex;
+    gap: 24px;
+    align-items: start;
+    width: 100%;
+  
+
+    .check {
+      width: 28px;
+      flex-shrink: 0;
+    }
+    .summary {
+      color: ${({ theme }) => theme.color.secondaryText};
+    }
+
+    .price {
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    .quantity {
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
   }
 `;

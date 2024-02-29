@@ -38,7 +38,7 @@ export const light: Theme = {
     background: "white",
     secondary: "black",
     third : "green",
-    border: "black",
+    border: "lightgray",
     text: "black",
   },
   heading: {
