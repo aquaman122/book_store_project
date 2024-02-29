@@ -4,22 +4,22 @@ const { StatusCodes } = require('http-status-codes');
 const orders = async (req, res) => {
   const connection = await pool.getConnection();
   const user_id = req.user_id;
-  const { items, first_book_title, delivery, total_quantity, total_price} = req.body;
+  const { items, firstBookTitle, delivery, totalQuantity, totalPrice} = req.body;
   const sqlInsertDelivery = `INSERT INTO delivery (address, receiver, contact) VALUES (?, ?, ?)`;
   const valuesDelivery = [delivery.address, delivery.receiver, delivery.contact];
-  const sqlInsertOrders = `INSERT INTO orders (books_title, total_quantity, total_price, delivery_id) VALUES (?, ?, ?, ?)`;
+  const sqlInsertOrders = `INSERT INTO orders (books_title, total_quantity, total_price, user_id, delivery_id) VALUES (?, ?, ?, ?, ?)`;
   const sqlInsertOrderedBooks = `INSERT INTO ordered_books (orders_id, books_id, quantity) VALUES (?, ?, ?)`;
   try {
     // 다 const 로 바꾸고 새로운명칭의 변수로 바꿔주기
     const [results] = await connection.query(sqlInsertDelivery, valuesDelivery);
     const delivery_id = results.insertId;
 
-    const valuesOrders = [first_book_title, total_quantity, total_price, delivery_id];
+    const valuesOrders = [firstBookTitle, totalQuantity, totalPrice, user_id, delivery_id];
     const [resultsOrders] = await connection.query(sqlInsertOrders, valuesOrders);
     const order_id = resultsOrders.insertId;
 
     for (const item of items) {
-      const valuesOrderedBooks = [order_id, item.books_id, item.quantity];
+      const valuesOrderedBooks = [order_id, item, items.length];
       await connection.query(sqlInsertOrderedBooks, valuesOrderedBooks);
     }
 
@@ -36,11 +36,12 @@ const orders = async (req, res) => {
 
 const getOrders = async (req, res) => {
   const connection = await pool.getConnection();
-  const user_id = req.user_id;
-  const sql = `SELECT * FROM orders WHERE user_id=?`;;
-  const values = [user_id];
+  const sqlSelect = `
+    SELECT orders.*, delivery.address, delivery.receiver, delivery.contact
+    FROM orders
+    JOIN delivery ON orders.delivery_id = delivery.id`;
   try {
-    const [results] = await connection.query(sql, values);
+    const [results] = await connection.query(sqlSelect);
 
     if (results.length === 0) {
       return res.status(StatusCodes.NOT_FOUND).json({
@@ -61,10 +62,11 @@ const getOrdersDetail = async (req, res) => {
   const connection = await pool.getConnection();
   const user_id = req.user_id;
   const order_id = req.params.id;
-  const sql = `SELECT * FROM orders WHERE id=? AND user_id=?`;
+  const sqlSelect = `SELECT orders.*, delivery.address, delivery.receiver, delivery.contact FROM orders
+  JOIN delivery ON orders.delivery_id = delivery.id WHERE orders.id = ? AND orders.user_id = ?`;
   const values = [order_id, user_id];
   try {
-    const [results] = await connection.query(sql, values);
+    const [results] = await connection.query(sqlSelect, values);
 
     if (results.length === 0) {
       return res.status(StatusCodes.NOT_FOUND).json({

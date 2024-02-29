@@ -82,6 +82,7 @@ const login = async (req, res) => {
 };
 
 const emailRequest = async (req, res) => {
+  const connection = await pool.getConnection();
   try {
     const { email } = req.body;
     
@@ -106,12 +107,13 @@ const emailRequest = async (req, res) => {
 }
 
 const resetPassword = async (req, res) => {
+  const connection = await pool.getConnection();
+  const { email, newPassword } = req.body;
   try {
-    const { email, newPassword } = req.body;
 
     // 이메일 주소를 기반으로 사용자를 데이터베이스에서 가져옵니다.
     const getUserSql = `SELECT * FROM users WHERE email = ?`;
-    const [results] = await pool.query(getUserSql, [email]);
+    const [results] = await connection.query(getUserSql, [email]);
 
     // 사용자가 존재하지 않는 경우
     if (results.length === 0) {
@@ -124,11 +126,13 @@ const resetPassword = async (req, res) => {
     const user = results[0];
 
     // 새로운 비밀번호를 해싱합니다.
-    const newHashPassword = await bcrypt.hash(newPassword, 10);
+    const saltRounds = 10;
+    const newHashPassword = await bcrypt.hash(newPassword, saltRounds);
+    console.log(newHashPassword);
 
     // 새로운 비밀번호와 함께 사용자 정보를 업데이트합니다.
     const updatePasswordSql = `UPDATE users SET password = ? WHERE email = ?`;
-    await pool.query(updatePasswordSql, [newHashPassword, email]);
+    await connection.query(updatePasswordSql, [newHashPassword, email]);
 
     // 새로운 토큰을 생성하여 클라이언트에게 응답합니다.
     const token = jwt.sign(
