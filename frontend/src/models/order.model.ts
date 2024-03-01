@@ -26,3 +26,15 @@ export interface Delivery {
   receiver: string;
   contact: string;
 }
+
+export interface OrderDetailItem {
+  id: number;
+  title: string;
+  author: string;
+  price: number;
+  quantity: number;
+}
+
+export interface OrderListItem extends Order {
+  detail?: OrderDetailItem[];
+}

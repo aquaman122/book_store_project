@@ -7,7 +7,7 @@ import Button from "../components/common/Button";
 
 export default function OrderList() {
   const {orders, selectedItemId, selectOrderItem} = useOrders();
-  
+
   return (
     <>
       <Title size="large">주문 내역</Title>
@@ -28,7 +28,8 @@ export default function OrderList() {
           </thead>
           <tbody>
             {orders.map((order) => (
-              <tr key={order.id}>
+              <React.Fragment key={order.id}>
+              <tr>
                 <td>{order.id}</td>
                 <td>{formatDate(order.created_at, "YYYY.MM.DD")}</td>
                 <td>{order.address}</td>
@@ -41,6 +42,26 @@ export default function OrderList() {
                   <Button size="small" scheme="normal" onClick={() => selectOrderItem(order.id)}>자세히</Button>
                 </td>
               </tr>
+            {
+              selectedItemId === order.id && order.detail && (
+                <tr>
+                  <td colSpan={8}>
+                    <ul className="detail">
+                      {order?.detail &&
+                      order.detail.map((item, idx) => (
+                        <li key={idx}>
+                          <td>{item.title}</td>
+                          <td>{item.author}</td>
+                          <td>{item.quantity} 권</td>
+                          <td>{formatNumber(item.price)} 원</td>
+                        </li>
+                      ))}
+                    </ul>
+                  </td>
+                </tr>
+              )
+            }
+            </React.Fragment>
             ))}
           </tbody>
         </table>
@@ -71,6 +92,19 @@ const OrderListStyle = styled.div`
         align-items: center;
         width: 60px;
         height: 35px;
+      }
+    }
+  }
+
+  .detail {
+    margin: 0;
+    li {
+      list-style: square;
+      text-align: left;
+      div {
+        display: flex;
+        padding: 8px 12px;
+        gap: 8px;
       }
     }
   }
