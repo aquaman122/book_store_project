@@ -23,5 +23,9 @@
   "extends" : "./tsconfig.paths.json",
   "include": [
     "src", "craco.config.js"
-  ]
+  ],
+  "rules": {
+    "import/prefer-default-export": "off",
+    "import/extensions": "off",
+  }
 }

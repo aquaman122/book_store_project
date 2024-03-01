@@ -2,7 +2,7 @@ import axios, { AxiosRequestConfig } from "axios";
 import { getToken, removeToken } from "../store/authStore";
 
 const BASE_URL = "http://localhost:5678";
-const DEFAULT_TIMEOUT = 3000000000;
+const DEFAULT_TIMEOUT = 300000;
 
 // getToken은 axiosInstance 가 생성될떄 한번만 호출 되기때문에 설정 바꿈
 const setAuthorizationHeader = () => {
@@ -45,3 +45,28 @@ export const createClient = (config?: AxiosRequestConfig) => {
 }
 
 export const httpClient = createClient();
+
+type RequestMethod = "get" | "post" | "put" | "delete";
+
+// 공통 요청 부분
+export const requestHandler =  async <T>(method: RequestMethod, url: string, payload?: T) => {
+  let response;
+
+  switch (method) {
+    case "post":
+      response = await httpClient.post(url, payload);
+      break;
+    case "get":
+      response = await httpClient.get(url);
+      break;
+    case "put":
+      response = await httpClient.put(url, payload);
+      break;
+    case "delete":
+      response = await httpClient.delete(url);
+      break;
+    default:
+  }
+
+  return response?.data;
+}

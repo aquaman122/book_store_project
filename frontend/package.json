@@ -55,6 +55,7 @@
     "@craco/craco": "^7.1.0",
     "alias": "^0.0.5",
     "craco": "^0.0.3",
-    "craco-alias": "^3.0.1"
+    "craco-alias": "^3.0.1",
+    "eslint-config-prettier": "^9.1.0"
   }
 }
