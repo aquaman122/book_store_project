@@ -1,102 +1,135 @@
 const pool = require('../mariadb'); // mariadb.js 파일에서 pool 가져오기
-const ensureAuthorization = require('../auth');
 const { StatusCodes } = require('http-status-codes');
 
 const orders = async (req, res) => {
-  let conn;
+  const connection = await pool.getConnection();
+  const user_id = req.user_id;
+  const { items, firstBookTitle, delivery, totalQuantity, totalPrice} = req.body;
+  const sqlInsertDelivery = `INSERT INTO delivery (address, receiver, contact) VALUES (?, ?, ?)`;
+  const valuesDelivery = [delivery.address, delivery.receiver, delivery.contact];
+  const sqlInsertOrders = `INSERT INTO orders (books_title, total_quantity, total_price, user_id, delivery_id) VALUES (?, ?, ?, ?, ?)`;
+  const sqlInsertOrderedBooks = `INSERT INTO ordered_books (orders_id, books_id, quantity) VALUES (?, ?, ?)`;
+
   try {
-    conn = await pool.getConnection(); // mariadb 풀에서 연결 가져오기
-    const authorization = ensureAuthorization(req, res);
+    // 다 const 로 바꾸고 새로운명칭의 변수로 바꿔주기
+    const [results] = await connection.query(sqlInsertDelivery, valuesDelivery);
+    const delivery_id = results.insertId;
 
-    if (authorization instanceof jwt.TokenExpiredError) {
-      return res.status(StatusCodes.UNAUTHORIZED).json({
-        message: '로그인 세션이 만료되었습니다. 다시 로그인 해주세요',
-      });
-    } else if (authorization instanceof jwt.JsonWebTokenError) {
-      return res.status(StatusCodes.BAD_REQUEST).json({
-        message: '토큰 값을 확인해주세요',
-      });
-    } else {
-      const { items, first_book_title, delivery, total_quantity, total_price} = req.body;
+    const valuesOrders = [firstBookTitle, totalQuantity, totalPrice, user_id, delivery_id];
+    const [resultsOrders] = await connection.query(sqlInsertOrders, valuesOrders);
+    const order_id = resultsOrders.insertId;
 
-      // 다 const 로 바꾸고 새로운명칭의 변수로 바꿔주기
-      let sql = `INSERT INTO delivery (address, receiver, contact) VALUES (?, ?, ?)`
-      let values = [delivery.address, delivery.receiver, delivery.contact];
+    for (const item of items) {
+      const [cartItems] = await connection.query(`SELECT * FROM cart_items WHERE id = ?`, [item]);
 
-      let result = await conn.execute(sql, values);
-      const delivery_id = result.insertId;
-
-      sql = `INSERT INTO orders (books_title, total_quantity, total_price, users_id, delivery_id)
-              VALUES (?, ?, ?, ?, ?)`;
-      values = [first_book_title, total_quantity, total_price, authorization.id, delivery_id];
-      result = await conn.execute(sql, values);
-      const orders_id = result.insertId;
-
-      // items
-      sql = `SELECT books_id, quantity FROM cart_items WHERE id IN (?)`;
-      const orderItems = await conn.query(sql, [items]);
-
-      sql = `INSERT INTO ordered_books (orders_id, books_id, quantity) VALUES (?)`;
-      values = orderItems.map(item => [orders_id, item.books_id, item.quantity]);
-      result = await conn.query(sql, [values]);
-
-      result = await deleteCartItems(conn, items);
-      return res.status(StatusCodes.OK).json(result);
+      if (cartItems.length > 0) {
+        const valuesOrderedBooks = [order_id, cartItems[0].books_id, cartItems[0].quantity];
+        await connection.query(sqlInsertOrderedBooks, valuesOrderedBooks);
+      }
     }
+
+    return res.status(StatusCodes.OK).json({
+      message: '주문이 완료되었습니다.',
+    });
   } catch (error) {
     console.error(error);
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
   } finally {
-    if (conn) conn.release(); // 연결 반환
+    connection.release();
   }
 };
 
-const deleteCartItems = async (conn, items) => {
-  const sql = `DELETE FROM cart_items WHERE id IN (?)`;
-
-  const result = await conn.query(sql, items);
-  return result;
-};
-
 const getOrders = async (req, res) => {
-  let conn;
+  const connection = await pool.getConnection();
+  const sqlSelect = `
+    SELECT orders.*, delivery.address, delivery.receiver, delivery.contact
+    FROM orders
+    JOIN delivery ON orders.delivery_id = delivery.id`;
   try {
-    conn = await pool.getConnection(); // mariadb 풀에서 연결 가져오기
-    const sql = `SELECT orders.id, books_title, total_quantity, total_price, created_at, address, receiver, contact
-                  FROM orders
-                  LEFT OUTER JOIN delivery ON orders.delivery_id=delivery.id`;
-    const result = await conn.execute(sql, []);
-    return res.status(StatusCodes.OK).json(result);
+    const [results] = await connection.query(sqlSelect);
+
+    if (results.length === 0) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        message: '주문 내역이 없습니다.',
+      });
+    }
+
+    return res.status(StatusCodes.OK).json(results);
   } catch (error) {
     console.error(error);
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
   } finally {
-    if (conn) conn.release(); // 연결 반환
+    connection.release();
   }
 };
 
 const getOrdersDetail = async (req, res) => {
-  let conn;
+  const connection = await pool.getConnection();
+  const user_id = req.user_id;
+  const order_id = req.params.id;
+  const sqlSelect = `SELECT books.id, books.title, author, price, quantity FROM ordered_books JOIN books ON ordered_books.books_id = books.id WHERE orders_id=?`;
+  const values = [order_id];
   try {
-    conn = await pool.getConnection(); // mariadb 풀에서 연결 가져오기
-    const { id } = req.params;
-    const sql = `SELECT books.id, books.title, books.author, books.price, ordered_books.quantity
-                   FROM ordered_books
-                   LEFT OUTER JOIN books ON ordered_books.books_id=books.id
-                   WHERE order_id=?`;
-    const values = [id];
-    const result = await conn.execute(sql, values);
-    return res.status(StatusCodes.OK).json(result);
+    const [results] = await connection.query(sqlSelect, values);
+
+    if (results.length === 0) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        message: '주문 내역이 없습니다.',
+      });
+    }
+    
+    return res.status(StatusCodes.OK).json(results);
   } catch (error) {
     console.error(error);
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
   } finally {
-    if (conn) conn.release(); // 연결 반환
+    connection.release();
+  }
+};
+
+const deleteOrder = async (req, res) => {
+  const connection = await pool.getConnection();
+  const user_id = req.user_id;
+  const order_id = req.params.id;
+  const sqlSelectOrder = `SELECT * FROM orders WHERE id=?`;
+  const sqlDeleteOrderedBooks = `DELETE FROM ordered_books WHERE orders_id=?`;
+  const sqlDeleteOrder = `DELETE FROM orders WHERE id=?`;
+  const sqlDeleteDelivery = `DELETE FROM delivery WHERE id=?`;
+
+  try {
+    const [results] = await connection.query(sqlSelectOrder, order_id);
+
+    if (results.length === 0) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        message: '주문 내역이 없습니다.',
+      });
+    }
+    if (results[0].user_id !== user_id) {
+      return res.status(StatusCodes.FORBIDDEN).json({
+        message: '권한이 없습니다.',
+      });
+    }
+    await connection.query(sqlDeleteOrderedBooks, order_id);
+
+    const delivery_id = results[0].delivery_id;
+
+    await connection.query(sqlDeleteOrder, order_id);
+    await connection.query(sqlDeleteDelivery, delivery_id);
+
+    return res.status(StatusCodes.OK).json({
+      message: '주문이 취소되었습니다.',
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
+  } finally {
+    connection.release();
   }
 };
 
 module.exports = {
   orders,
   getOrders,
-  getOrdersDetail
+  getOrdersDetail,
+  deleteOrder
 };

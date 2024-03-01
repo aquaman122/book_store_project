@@ -40,7 +40,7 @@ function BooksFilter() {
         <div className="category">
           { category.map((item) => (
             <Button size="small" scheme={item.isActive ? "primary" : "normal"} key={item.category_id} onClick={() => handleCategory(item.category_id)} >
-              {item.name}
+              {item.categoryName}
             </Button>
           ))}
         </div>

@@ -9,50 +9,72 @@ import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import Books from "./pages/Books";
 import BookDetail from "./pages/BookDetail";
+import Cart from "./pages/Cart";
+import Order from "./pages/Order";
+import OrderList from "./pages/OrderList";
 
-const router = createBrowserRouter([
+const routerList = [
   {
     path: "/",
-    element: <Layout><Home /></Layout>,
-    errorElement: <Error />,
+    element: <Home />,
   },
   {
     path: "/books",
-    element: <Layout><Books /></Layout>,
+    element: <Books />,
   },
   {
     path: "/signup",
-    element: (
-      <Layout>
-        <Signup />
-      </Layout>
+    element: (      
+      <Signup />      
     ),
   },
   {
     path: "/reset",
-    element: (
-      <Layout>
-        <ResetPassword />
-      </Layout>
+    element: (      
+      <ResetPassword />      
     ),
   },
   {
     path: "/login",
-    element: (
-      <Layout>
-        <Login />
-      </Layout>
+    element: (      
+      <Login />      
     ),
   },
   {
     path: "/book/:bookId",
-    element: (
-      <Layout>
-        <BookDetail />
-      </Layout>
+    element: (      
+      <BookDetail />      
     ),
   },
-])
+  {
+    path: "/cart",
+    element: (      
+      <Cart />      
+    ),
+  },
+  {
+    path: "/order",
+    element: (      
+      <Order />
+    ),
+  },
+  {
+    path: "/orderlist",
+    element: (
+      <OrderList />
+    ),
+  },
+];
+
+const newRouteList = routerList.map((route) => {
+  return {
+    ...route,
+    element: <Layout>{route.element}</Layout>,
+    errorElemet: <Error />,
+  }
+})
+
+const router = createBrowserRouter(newRouteList);
 
 function App() {
   return (

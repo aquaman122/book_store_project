@@ -11,7 +11,7 @@ function Header() {
   const { category } = useCategory();
   // token값 사용
   const { isloggedIn, storeLogout } = useAuthStore();
-
+  
   return (
     <>
       <HeaderStyle>
@@ -25,7 +25,7 @@ function Header() {
             {category.map((item) => (
               <li key={item.category_id}>
                 <Link to={item.category_id === null ? "/books" : `?category_id=${item.category_id}`}>
-                  {item.name}
+                  {item.categoryName}
                 </Link>
               </li>
             ))}
@@ -116,6 +116,10 @@ const HeaderStyle = styled.header`
           background: none;
           border: 0;
           cursor: pointer;
+          color: ${({ theme }) => theme.color.text};
+          &:hover {
+            color: ${({ theme }) => theme.color.primary};
+          }
 
           svg {
             margin-right: 6px;

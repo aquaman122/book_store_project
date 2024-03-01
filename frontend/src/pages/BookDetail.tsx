@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
+import AddToCart from "../components/book/AddToCart";
 import LikeButton from "../components/book/LikeButton";
 import EllipsisBox from "../components/common/EllipsisBox";
 import Title from "../components/common/Title";
@@ -81,7 +82,7 @@ export default function BookDetail() {
           </div>
 
           <div className="add-cart">
-            장바구니
+            <AddToCart book={book} />
           </div>
         </div>
       </header>

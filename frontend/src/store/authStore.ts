@@ -29,4 +29,4 @@ export const useAuthStore = create<StoreState>((set) => ({
     set({ isloggedIn: false});
     removeToken();
   }
-}))
+}));

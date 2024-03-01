@@ -35,11 +35,11 @@ export const light: Theme = {
   name: 'light',
   color : {
     primary: "#ff5800",
-    background: "lightgrey",
-    secondary: "#5F5F5F",
+    background: "white",
+    secondary: "black",
     third : "green",
-    border: "gray",
-    text: "dark",
+    border: "lightgray",
+    text: "black",
   },
   heading: {
     large: {

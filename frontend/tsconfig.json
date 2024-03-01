@@ -20,7 +20,12 @@
     "noEmit": true,
     "jsx": "react-jsx"
   },
+  "extends" : "./tsconfig.paths.json",
   "include": [
-    "src"
-  ]
+    "src", "craco.config.js"
+  ],
+  "rules": {
+    "import/prefer-default-export": "off",
+    "import/extensions": "off",
+  }
 }
