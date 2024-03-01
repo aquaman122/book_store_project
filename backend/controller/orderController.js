@@ -9,6 +9,7 @@ const orders = async (req, res) => {
   const valuesDelivery = [delivery.address, delivery.receiver, delivery.contact];
   const sqlInsertOrders = `INSERT INTO orders (books_title, total_quantity, total_price, user_id, delivery_id) VALUES (?, ?, ?, ?, ?)`;
   const sqlInsertOrderedBooks = `INSERT INTO ordered_books (orders_id, books_id, quantity) VALUES (?, ?, ?)`;
+
   try {
     // 다 const 로 바꾸고 새로운명칭의 변수로 바꿔주기
     const [results] = await connection.query(sqlInsertDelivery, valuesDelivery);
@@ -19,8 +20,12 @@ const orders = async (req, res) => {
     const order_id = resultsOrders.insertId;
 
     for (const item of items) {
-      const valuesOrderedBooks = [order_id, item, items.length];
-      await connection.query(sqlInsertOrderedBooks, valuesOrderedBooks);
+      const [cartItems] = await connection.query(`SELECT * FROM cart_items WHERE id = ?`, [item]);
+
+      if (cartItems.length > 0) {
+        const valuesOrderedBooks = [order_id, cartItems[0].books_id, cartItems[0].quantity];
+        await connection.query(sqlInsertOrderedBooks, valuesOrderedBooks);
+      }
     }
 
     return res.status(StatusCodes.OK).json({
@@ -62,9 +67,8 @@ const getOrdersDetail = async (req, res) => {
   const connection = await pool.getConnection();
   const user_id = req.user_id;
   const order_id = req.params.id;
-  const sqlSelect = `SELECT orders.*, delivery.address, delivery.receiver, delivery.contact FROM orders
-  JOIN delivery ON orders.delivery_id = delivery.id WHERE orders.id = ? AND orders.user_id = ?`;
-  const values = [order_id, user_id];
+  const sqlSelect = `SELECT books.id, books.title, author, price, quantity FROM ordered_books JOIN books ON ordered_books.books_id = books.id WHERE orders_id=?`;
+  const values = [order_id];
   try {
     const [results] = await connection.query(sqlSelect, values);
 
