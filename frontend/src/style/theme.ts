@@ -98,7 +98,7 @@ export const dark: Theme = {
   color : {
     primary: "coral",
     background: "midnightblue",
-    secondary: "darkblue",
+    secondary: "black",
     third : "darkgreen",
     border: "gray",
     text: "white",

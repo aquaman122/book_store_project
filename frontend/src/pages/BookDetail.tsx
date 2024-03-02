@@ -59,7 +59,7 @@ export default function BookDetail() {
     <BookDetailStyle>
       <header className="header">
         <div className="image">
-          <img src={getImgSrc(book.img)} alt={book.title} />
+          <img src={getImgSrc(book.img + 253)} alt={book.title} />
         </div>
         <div className="info">
           <Title size="large" color="text">

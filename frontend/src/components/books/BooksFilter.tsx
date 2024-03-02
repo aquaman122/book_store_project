@@ -39,13 +39,13 @@ function BooksFilter() {
       <BooksFilterStyle>
         <div className="category">
           { category.map((item) => (
-            <Button size="small" scheme={item.isActive ? "primary" : "normal"} key={item.category_id} onClick={() => handleCategory(item.category_id)} >
+            <Button size="medium" scheme={item.isActive ? "primary" : "normal"} key={item.category_id} onClick={() => handleCategory(item.category_id)} >
               {item.categoryName}
             </Button>
           ))}
         </div>
         <div className="new">
-          <Button size="small" scheme={searchParams.get(QUERYSTRING.NEWS) ? "primary" : "normal"} onClick={() => handleNew()}>
+          <Button size="medium" scheme={searchParams.get(QUERYSTRING.NEWS) ? "primary" : "normal"} onClick={() => handleNew()}>
             신간
           </Button>
         </div>
