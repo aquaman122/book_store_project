@@ -35,7 +35,7 @@ export const light: Theme = {
   name: 'light',
   color : {
     primary: "#ff5800",
-    background: "white",
+    background: "lightgrey",
     secondary: "black",
     third : "green",
     border: "lightgray",
@@ -98,7 +98,7 @@ export const dark: Theme = {
   color : {
     primary: "coral",
     background: "midnightblue",
-    secondary: "black",
+    secondary: "white",
     third : "darkgreen",
     border: "gray",
     text: "white",
