@@ -55,9 +55,16 @@
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@craco/craco": "^7.1.0",
+    "@faker-js/faker": "^8.4.1",
     "alias": "^0.0.5",
     "craco": "^0.0.3",
     "craco-alias": "^3.0.1",
-    "eslint-config-prettier": "^9.1.0"
+    "eslint-config-prettier": "^9.1.0",
+    "msw": "^2.2.2"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
   }
 }

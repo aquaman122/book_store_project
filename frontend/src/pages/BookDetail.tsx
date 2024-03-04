@@ -10,6 +10,7 @@ import { useBook } from "../hooks/useBook";
 import { BookDetail as IBookDetail } from "../models/book.model";
 import { formatDate, formatNumber } from "../utils/format";
 import { getImgSrc } from "../utils/image";
+import BookReview from "@/components/book/BookReview";
 
 const bookInfoList = [
   {
@@ -51,7 +52,7 @@ const bookInfoList = [
 
 export default function BookDetail() {
   const { bookId } = useParams();
-  const { book, likeToggle } = useBook(bookId);
+  const { book, likeToggle, reviews, addReview } = useBook(bookId);
   
   if (!book) return null;
 
@@ -89,13 +90,16 @@ export default function BookDetail() {
       <div className="content">
         <Title size="medium">상세 설명</Title>
           <EllipsisBox linelimit={4}>
-            {book.contents}
+            {book.detail}
           </EllipsisBox>
 
         <Title size="medium">목차</Title>
         <p className="index">
-          {book.detail}
+          {book.contents}
         </p>
+
+        <Title size="medium">리뷰</Title>
+        <BookReview reviews={reviews} onAdd={addReview} />
       </div>
     </BookDetailStyle>
   );
