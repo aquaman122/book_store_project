@@ -18,7 +18,8 @@ export const useBooks = () => {
     });
   });
 
-  return { books: booksData?.books, 
+  return { 
+    books: booksData?.books, 
     pagination: booksData?.pagination, 
     isEmpty: booksData?.books.length === 0,
     isBooksLoading,
