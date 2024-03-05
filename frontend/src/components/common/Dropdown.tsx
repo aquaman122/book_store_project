@@ -14,7 +14,7 @@ export default function Dropdown({ children, toggleButton, isOpen = false }: Pro
   useEffect(() => {
     function handleOutsideClick(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        // 외부 클리 되었음
+        // 외부 클리 되었음ㄴ
         setOpen(false);
       }
     }

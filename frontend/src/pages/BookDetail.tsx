@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
@@ -12,6 +12,7 @@ import { formatDate, formatNumber } from "../utils/format";
 import { getImgSrc } from "../utils/image";
 import BookReview from "@/components/book/BookReview";
 import { Tab, Tabs } from "@/components/common/Tabs";
+import Modal from "@/components/common/Modal";
 
 const bookInfoList = [
   {
@@ -54,15 +55,19 @@ const bookInfoList = [
 export default function BookDetail() {
   const { bookId } = useParams();
   const { book, likeToggle, reviews, addReview } = useBook(bookId);
+  const [isImgOpen, setIsImgOpen] = useState(false);
   
   if (!book) return null;
 
   return (
     <BookDetailStyle>
       <header className="header">
-        <div className="image">
+        <div className="image" onClick={() => setIsImgOpen(true)}>
           <img src={getImgSrc(book.img + 253)} alt={book.title} />
         </div>
+        <Modal isOpen={isImgOpen} onClose={() => setIsImgOpen(false)}>
+          <img src={getImgSrc(book.img + 253)} alt={book.title} />
+        </Modal>
         <div className="info">
           <Title size="large" color="text">
             {book.title}
