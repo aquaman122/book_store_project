@@ -5,7 +5,7 @@ function ThemeSwitcher() {
   const { themeName, toggleTheme } = useContext(ThemeContext);
 
   return (
-    <button onClick={toggleTheme}>{themeName}</button>
+    <button onClick={toggleTheme} style={{color: "black"}}>{themeName}</button>
   );
 }
 

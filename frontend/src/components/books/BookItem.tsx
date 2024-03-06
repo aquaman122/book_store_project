@@ -19,7 +19,7 @@ function BookItem({ book, view }: Props) {
         <Link to={`/book/${book.id}`}>
           <div className="image">
             {/* picsum 사용하기 img */}
-            <img src={getImgSrc(book.img)}
+            <img src={getImgSrc(book.img + 253)}
             alt={book.title} />
           </div>
           <div className="content">

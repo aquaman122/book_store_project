@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
@@ -10,6 +10,9 @@ import { useBook } from "../hooks/useBook";
 import { BookDetail as IBookDetail } from "../models/book.model";
 import { formatDate, formatNumber } from "../utils/format";
 import { getImgSrc } from "../utils/image";
+import BookReview from "@/components/book/BookReview";
+import { Tab, Tabs } from "@/components/common/Tabs";
+import Modal from "@/components/common/Modal";
 
 const bookInfoList = [
   {
@@ -51,16 +54,20 @@ const bookInfoList = [
 
 export default function BookDetail() {
   const { bookId } = useParams();
-  const { book, likeToggle } = useBook(bookId);
+  const { book, likeToggle, reviews, addReview } = useBook(bookId);
+  const [isImgOpen, setIsImgOpen] = useState(false);
   
   if (!book) return null;
 
   return (
     <BookDetailStyle>
       <header className="header">
-        <div className="image">
-          <img src={getImgSrc(book.img)} alt={book.title} />
+        <div className="image" onClick={() => setIsImgOpen(true)}>
+          <img src={getImgSrc(book.img + 253)} alt={book.title} />
         </div>
+        <Modal isOpen={isImgOpen} onClose={() => setIsImgOpen(false)}>
+          <img src={getImgSrc(book.img + 253)} alt={book.title} />
+        </Modal>
         <div className="info">
           <Title size="large" color="text">
             {book.title}
@@ -87,15 +94,24 @@ export default function BookDetail() {
         </div>
       </header>
       <div className="content">
-        <Title size="medium">상세 설명</Title>
-          <EllipsisBox linelimit={4}>
-            {book.contents}
-          </EllipsisBox>
-
-        <Title size="medium">목차</Title>
-        <p className="index">
-          {book.detail}
-        </p>
+        <Tabs>
+          <Tab title="상세 설명">
+            <Title size="medium">상세 설명</Title>
+            <EllipsisBox linelimit={4}>
+              {book.detail}
+            </EllipsisBox>
+          </Tab>
+          <Tab title="목차">
+            <Title size="medium">목차</Title>
+            <p className="index">
+              {book.contents}
+            </p>
+          </Tab>
+          <Tab title="리뷰">
+            <Title size="medium">리뷰</Title>
+            <BookReview reviews={reviews} onAdd={addReview} />
+          </Tab>
+        </Tabs>
       </div>
     </BookDetailStyle>
   );
