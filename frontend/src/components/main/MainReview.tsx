@@ -6,18 +6,21 @@ import Slider from "react-slick";
 
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 interface Props {
   reviews: IBookReviewItem[];
 }
 
 export default function MainReview({ reviews }: Props) {
+  const { isMobile } = useMediaQuery();
+
   const sliderSettings = {
     dots: true,
     infinite: true,
     speed: 500,
-    slidesToShow: 3,
-    slidesToScroll: 3,
+    slidesToShow: isMobile ? 1 : 3,
+    slidesToScroll: isMobile ? 1 : 3,
     gap: 16,
   }
   return (
@@ -45,5 +48,14 @@ const MainReviewStyle = styled.div`
   .slick-prev:before,
   .slick-next:before {
     color: #000;
+  }
+
+  @media screen AND ${({ theme }) => theme.mediaQuery.mobile} {
+    .slick-prev {
+      left: 0;
+    }
+    .slick-next {
+      right: 0;
+    }
   }
 `;
