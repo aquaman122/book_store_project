@@ -123,7 +123,6 @@ export const CartStyle = styled.div`
   }
 
   .delivery {
-
     fieldset {
       border: 0;
       margin: 0;
@@ -150,11 +149,17 @@ export const CartStyle = styled.div`
         align-items: center;
         height: 32px;
       }
-    .error-text {
-      color: red;
-      margin: 0;
-      padding: 0 0 12px 0;
-      text-align: right;
-    }
+
+      .error-text { // Move this inside fieldset
+        color: red;
+        margin: 0;
+        padding: 0 0 12px 0;
+        text-align: right;
+      }
+    } // Close fieldset here
   }
-}`;
+
+  @media screen and ${({ theme }) => theme.mediaQuery.mobile} {
+    flex-direction: column;
+  }
+`;

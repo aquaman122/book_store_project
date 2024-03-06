@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
 import Button from "../common/Button";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 interface Props {
   onCompleted: (address: string) => void;
@@ -9,7 +10,7 @@ interface Props {
 const SCRIPT_URL = "//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js";
 
 export default function FindAddressButton({ onCompleted }: Props) {
-
+  const { isMobile } = useMediaQuery();
   // script load
 
   // handler
@@ -35,11 +36,12 @@ export default function FindAddressButton({ onCompleted }: Props) {
   }, []);
 
   return (
-    <Button type="button" size="medium" scheme="normal" onClick={(event) => {
+    <Button type="button" size={isMobile ? "small" : "medium"} scheme="normal" onClick={(event) => {
       event.preventDefault();
       handleOpen();
     }}>주소 찾기</Button>
   );
 }
 
-const FindAddressButtonStyle = styled.div``;
+const FindAddressButtonStyle = styled.div`
+`;

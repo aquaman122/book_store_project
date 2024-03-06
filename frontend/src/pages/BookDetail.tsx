@@ -13,6 +13,7 @@ import { getImgSrc } from "../utils/image";
 import BookReview from "@/components/book/BookReview";
 import { Tab, Tabs } from "@/components/common/Tabs";
 import Modal from "@/components/common/Modal";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 const bookInfoList = [
   {
@@ -56,6 +57,7 @@ export default function BookDetail() {
   const { bookId } = useParams();
   const { book, likeToggle, reviews, addReview } = useBook(bookId);
   const [isImgOpen, setIsImgOpen] = useState(false);
+  const { isMobile } = useMediaQuery();
   
   if (!book) return null;
 
@@ -96,19 +98,19 @@ export default function BookDetail() {
       <div className="content">
         <Tabs>
           <Tab title="상세 설명">
-            <Title size="medium">상세 설명</Title>
+            <Title size={isMobile ? "small" : "medium"}>상세 설명</Title>
             <EllipsisBox linelimit={4}>
               {book.detail}
             </EllipsisBox>
           </Tab>
           <Tab title="목차">
-            <Title size="medium">목차</Title>
+            <Title size={isMobile ? "small" : "medium"}>목차</Title>
             <p className="index">
               {book.contents}
             </p>
           </Tab>
           <Tab title="리뷰">
-            <Title size="medium">리뷰</Title>
+            <Title size={isMobile ? "small" : "medium"}>리뷰</Title>
             <BookReview reviews={reviews} onAdd={addReview} />
           </Tab>
         </Tabs>
@@ -120,7 +122,7 @@ export default function BookDetail() {
 const BookDetailStyle = styled.div`
   .header {
     display: flex;
-    align-items: start;
+    align-items: ${({ theme }) => theme.mediaQuery.mobile ? "" : "start"};
     gap: 24px;
     padding: 0 0 24px 0;
 
@@ -154,7 +156,9 @@ const BookDetailStyle = styled.div`
     }
   }
 
-  .content {
-    
+  @media screen AND ${({ theme }) => theme.mediaQuery.mobile} {
+    .header {
+      flex-direction: column;
+    }
   }
 `

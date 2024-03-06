@@ -7,6 +7,7 @@ import { useBook } from "../../hooks/useBook";
 import { BookDetail } from "../../models/book.model";
 import Button from "../common/Button";
 import InputText from "../common/InputText";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 interface Props {
   book: BookDetail;
@@ -16,6 +17,7 @@ export default function AddToCart({ book }: Props) {
   const {showAlert} = useAlert();
   const [quantity, setQuantity] = useState<number>(1);
   const { addToCart, cartAdded } = useBook(book.id.toString());
+  const { isMobile } = useMediaQuery();
 
   const handleChange = (e : React.ChangeEvent<HTMLInputElement>) => {
     setQuantity(Number(e.target.value));
@@ -32,9 +34,9 @@ export default function AddToCart({ book }: Props) {
   return (
     <AddToCartStyle $added={cartAdded}>
       <InputText className="input" inputType="number" placeholder="1" value={quantity} onChange={handleChange} />
-      <Button size="medium" scheme="normal" onClick={handleIncrease}>+</Button>
-      <Button size="medium" scheme="normal" onClick={handleDecrease}>-</Button>
-      <Button size="small" scheme="primary" onClick={() => addToCart(quantity)}>장바구니 담기</Button>
+      <Button size={isMobile ? "small" : "medium"} scheme="normal" onClick={handleIncrease}>+</Button>
+      <Button size={isMobile ? "small" : "medium"} scheme="normal" onClick={handleDecrease}>-</Button>
+      <Button size={isMobile ? "small" : "medium"} scheme="primary" onClick={() => addToCart(quantity)}>장바구니 담기</Button>
       <div className="added">
         <p>장바구니에 추가되었습니다.</p>
         <Link to="/cart">장바구니로 이동</Link>

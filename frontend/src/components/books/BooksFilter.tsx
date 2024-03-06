@@ -4,11 +4,13 @@ import { useCategory } from "../../hooks/useCategory";
 import Button from "../common/Button";
 import { useSearchParams } from 'react-router-dom';
 import { QUERYSTRING } from "../../constants/querystring";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 
 function BooksFilter() {
   const { category } = useCategory();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { isMobile } = useMediaQuery();
 
   const handleCategory = (id: number | null) => {
     const newSearchParams = new URLSearchParams(searchParams);
@@ -38,14 +40,14 @@ function BooksFilter() {
     <>
       <BooksFilterStyle>
         <div className="category">
-          { category.map((item) => (
-            <Button size="medium" scheme={item.isActive ? "primary" : "normal"} key={item.category_id} onClick={() => handleCategory(item.category_id)} >
+          {category.map((item) => (
+            <Button size={isMobile ? "small" : "medium"} scheme={item.isActive ? "primary" : "normal"} key={item.category_id} onClick={() => handleCategory(item.category_id)} >
               {item.categoryName}
             </Button>
           ))}
         </div>
         <div className="new">
-          <Button size="medium" scheme={searchParams.get(QUERYSTRING.NEWS) ? "primary" : "normal"} onClick={() => handleNew()}>
+          <Button size={isMobile ? "small" : "medium"} scheme={searchParams.get(QUERYSTRING.NEWS) ? "primary" : "normal"} onClick={() => handleNew()}>
             신간
           </Button>
         </div>
@@ -61,6 +63,12 @@ const BooksFilterStyle = styled.div`
   .category {
     display: flex;
     gap: 8px;
+  }
+
+  @media screen AND ${({ theme }) => theme.mediaQuery.mobile} {
+    .category {
+      gap: 4px;
+    }
   }
 `;
 

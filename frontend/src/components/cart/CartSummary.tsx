@@ -27,7 +27,7 @@ const CartSummaryStyle = styled.div`
   border: 1px solid ${({ theme }) => theme.color.border};
   border-radius: 1px solid ${({ theme }) => theme.borderRadius.default};
   padding: 12px;
-  width: 240px;
+  width: ${({ theme }) => theme.mediaQuery.mobile ? "100%" : "240px"};
 
   h1 {
     font-size: 1.5rem;

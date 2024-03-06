@@ -56,7 +56,8 @@ const TabsStyle = styled.div`
       font-weight: bold;
       color: ${({ theme }) => theme.color.text};
       border-radius: ${({ theme }) => theme.borderRadius.default} ${({ theme }) => theme.borderRadius.default} 0 0;
-      padding: 12px 24px; 
+      padding: ${({ theme }) => theme.mediaQuery.mobile ? "6px 12px" : "12px 24px"}; 
+        12px 24px; 
 
       &.active {
         color: #fff;
@@ -67,7 +68,6 @@ const TabsStyle = styled.div`
 
   .tab-content {
     padding: 24px 0;
-
   }
 `;
 
