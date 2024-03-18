@@ -17,7 +17,7 @@ export const createClient = (config?: AxiosRequestConfig) => {
     withCredentials: true,
     ...config,
   });
-
+  // 요청시에만 토큰을 설정
   axiosInstance.interceptors.request.use(
     (config) => {
       config.headers['Authorization'] = setAuthorizationHeader();
