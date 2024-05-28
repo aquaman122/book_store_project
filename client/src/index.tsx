@@ -16,6 +16,7 @@ async function mountApp() {
       <App />
     </React.StrictMode>
   );
+  // ServiceWorkerRegistration = 
 }
 
 mountApp();
