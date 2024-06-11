@@ -56,4 +56,8 @@
 │   ├── utils
 └── run.sh
 ``` 
+<img width="1109" alt="스크린샷 2024-06-12 오전 7 24 21" src="https://github.com/aquaman122/book_store_project/assets/89385423/438495c7-3aa9-42f3-a1a7-9ed7ce19874b">
 
+<img width="1151" alt="스크린샷 2024-06-12 오전 7 24 30" src="https://github.com/aquaman122/book_store_project/assets/89385423/a8667a91-a982-40b2-bf2d-96f611ad1668">
+
+<img width="1101" alt="스크린샷 2024-06-12 오전 7 24 39" src="https://github.com/aquaman122/book_store_project/assets/89385423/e27bb946-af87-4cdc-988d-47eff9532f48">
