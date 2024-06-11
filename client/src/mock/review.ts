@@ -1,6 +1,6 @@
 import { BookReviewItem } from "@/models/book.model";
 import { http, HttpResponse } from "msw";
-import { fakerKO as faker } from "@faker-js/faker";
+import { faker } from "@faker-js/faker";
 
 const mockReviewData:BookReviewItem[] = Array.from({length: 8}).map((_, idx) => ({
   id: idx,

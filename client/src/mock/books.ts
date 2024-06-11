@@ -1,5 +1,5 @@
 import { http, HttpResponse } from "msw";
-import { fakerKO as faker } from "@faker-js/faker";
+import { faker } from "@faker-js/faker";
 
 const bestBooksData = Array.from({ length: 10 }).map((item, idx) => ({
   id: idx,
