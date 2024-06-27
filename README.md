@@ -41,6 +41,8 @@
 
 ## FrontEnd
 
+### 기술
+React + TypeScript
 ### 🛠️ 폴더
 ```bash
 ├── src
