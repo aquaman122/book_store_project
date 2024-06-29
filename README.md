@@ -43,6 +43,8 @@
 
 ### 기술
 React + TypeScript
+### 라이브러리
+Zustand
 ### 🛠️ 폴더
 ```bash
 ├── src
